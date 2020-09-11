@@ -66,7 +66,7 @@ BIM360IssueExtension.prototype.createUI = function () {
     loadQualityIssues.onClick = function (e) {
       // check if the panel is created or not
       if (_this.panel == null) {
-        _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'BIM 360 Issues');
+        _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
       }
       // show/hide docking panel
       _this.panel.setVisible(!_this.panel.isVisible());
@@ -78,7 +78,7 @@ BIM360IssueExtension.prototype.createUI = function () {
       _this.loadIssues();
     };
     loadQualityIssues.addClass('loadQualityIssues');
-    loadQualityIssues.setToolTip('Show Issues');
+    loadQualityIssues.setToolTip('Mostrar Problemas');
     this.subToolbar.addControl(loadQualityIssues);
   }
 
@@ -291,11 +291,14 @@ BIM360IssueExtension.prototype.showIssues = function () {
 
     // show issue on panel
     if (_this.panel) {
-      _this.panel.addProperty('Title', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
+      _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
       //_this.panel.addProperty('Location', stringOrEmpty(issue.attributes.location_description), 'Issue ' + issue.attributes.identifier);
-      _this.panel.addProperty('Version', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
-      _this.panel.addProperty('Created at', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
-      _this.panel.addProperty('Assigned to', issue.attributes.assigned_to_name, 'Issue ' + issue.attributes.identifier);
+      _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
+      _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
+      issue.attributes.custom_attributes.forEach(attribute => {
+        _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
+      });
+      //_this.panel.addProperty('Assinado por', issue.attributes.assigned_to_name, 'Issue ' + issue.attributes.identifier);
     }
 
     // add the pushpin
