@@ -221,14 +221,19 @@ BIM360IssueExtension.prototype.loadIssues = function (containerId, urn) {
 
 BIM360IssueExtension.prototype.getContainerId = function (href, urn, cb) {
   var _this = this;
+  var selected = getSelectedNode();
   if (_this.panel) {
     _this.panel.removeAllProperties();
     _this.panel.addProperty('Loading...', '');
   }
 
-  _this.containerId = '319b67a2-78d3-411d-a93a-4222de9062d9';
-  _this.hubId = 'b.3dcd7fef-85df-41fc-a93a-d09328f35956'; // urn:adsk.wipprod:dm.lineage:AKSZALE4Q2yDt7vPQ3VwWA
+  let url = selected.project.split("/");
+  let count = url.length - 1
+  _this.containerId = url[count].substring(2);
+  _this.hubId = selected.urn;
   cb();
+
+  
 
 }
 
