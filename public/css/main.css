@@ -21,3 +21,17 @@ body {
 #forgeViewer {
   width: 100%;
 }
+
+.issuesExtensionIcon {
+  background-image: url(/img/myAwesomeIcon.png);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.loadQualityIssues {
+  background-image: url(https://github.com/encharm/Font-Awesome-SVG-PNG/raw/master/white/png/24/exclamation-triangle.png);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}

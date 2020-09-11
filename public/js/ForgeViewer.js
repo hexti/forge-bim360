@@ -10,9 +10,10 @@ function launchViewer(urn, viewableId) {
   }; 
   
   Autodesk.Viewing.Initializer(options, () => {
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser'] });
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension'] });
     viewer.start();
     var documentId = 'urn:' + urn;
+    localStorage.setItem('urn', urn);
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
   });
 
@@ -32,6 +33,7 @@ function launchViewer(urn, viewableId) {
 function getForgeToken(callback) {
   fetch('/api/forge/oauth/token').then(res => {
     res.json().then(data => {
+      localStorage.setItem('token', data.access_token);
       callback(data.access_token, data.expires_in);
     });
   });
