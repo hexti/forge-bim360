@@ -281,24 +281,65 @@ BIM360IssueExtension.prototype.showIssues = function () {
   pushPinExtension.removeAllItems();
   pushPinExtension.showAll();
   var selected = getSelectedNode();
+  let token = localStorage.getItem('token')
 
   //migrate to viewer 7.0
   //	extension.loadItems([data])
     var pushpinDataArray = [];
 
-  _this.issues.forEach(function (issue) {
-    var dateCreated = moment(issue.attributes.created_at);
+    _this.issues.sort(function (a, b) {
+      if (a.attributes.identifier > b.attributes.identifier) {
+        return 1;
+      }
+      if (a.attributes.identifier < b.attributes.identifier) {
+        return -1;
+      }
+      return 0;
+    });
 
+  _this.issues.forEach(function (issue) {
+    let sortIssue = issue.attributes.custom_attributes
+
+    sortIssue.sort(function (a, b) {
+      if (a.title > b.title) {
+        return 1;
+      }
+      if (a.title < b.title) {
+        return -1;
+      }
+      return 0;
+    });
+
+    // console.log(sortIssue)
+
+    var dateCreated = moment(issue.attributes.created_at);
     // show issue on panel
     if (_this.panel) {
       _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
-      //_this.panel.addProperty('Location', stringOrEmpty(issue.attributes.location_description), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
-      issue.attributes.custom_attributes.forEach(attribute => {
-        _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
+      sortIssue.forEach(attribute => {
+        if(attribute.type === 'list'){
+          axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${_this.containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              }
+          })
+          .then((res) => {
+            let options = res.data.results[0].metadata.list.options
+            options.forEach(option => {
+              if(option.id === attribute.value){
+                _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+              }
+            });
+          })
+          .catch((error) => {
+              console.error(error)
+          })
+        }else{
+          _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
+        }
       });
-      //_this.panel.addProperty('Assinado por', issue.attributes.assigned_to_name, 'Issue ' + issue.attributes.identifier);
     }
 
     // add the pushpin
