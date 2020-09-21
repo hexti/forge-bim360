@@ -142,6 +142,7 @@ markup3d.prototype.load = function() {
   }
 
   this.update_DivLabel = function(eventName){
+      console.log(this.line3d)
     //   var position = this.line3d.geometry.vertices[1].clone().sub(this.offset);
     //   this.label = position.project(this.camera);
     //   window.dispatchEvent(new CustomEvent(eventName, {
