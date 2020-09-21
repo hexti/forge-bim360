@@ -64,6 +64,7 @@ BIM360IssueExtension.prototype.createUI = function () {
   {
     var loadQualityIssues = new Autodesk.Viewing.UI.Button('loadQualityIssues');
     loadQualityIssues.onClick = function (e) {
+      
       // check if the panel is created or not
       if (_this.panel == null) {
         _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
@@ -310,8 +311,6 @@ BIM360IssueExtension.prototype.showIssues = function () {
       return 0;
     });
 
-    // console.log(sortIssue)
-
     var dateCreated = moment(issue.attributes.created_at);
     // show issue on panel
     if (_this.panel) {
@@ -345,6 +344,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
     // add the pushpin
     var issueAttributes = issue.attributes;
     var pushpinAttributes = issue.attributes.pushpin_attributes;
+    
     if (pushpinAttributes) {
         issue.type = issue.type.replace('quality_', ''); // temp fix during issues > quality_issues migration
 
@@ -359,9 +359,8 @@ BIM360IssueExtension.prototype.showIssues = function () {
         });
       } 
     })
-
+  
   pushPinExtension.loadItems(pushpinDataArray);
-
 }
 
 // *******************************************
@@ -398,4 +397,17 @@ function id(href) {
 function stringOrEmpty(str) {
   if (str == null) return '';
   return str;
+}
+
+function switchView(level) {
+  viewer.restoreState(viewStates[level]);
+}
+
+  // get view state from console
+  // v=viewer.getState();delete(v.seedURN);delete(v.objectSet);delete(v.renderOptions);delete(v.cutplanes);JSON.stringify(v)
+
+var viewStates = {
+  "view1": {"viewport":{"name":"","eye":[363.4573315717432,454.00539656374525,653.3954041272863],"target":[-182.44454194347043,-270.9675826967336,-373.32406499505953],"up":[-0.2483724861641897,0.8485857169975204,-0.4671331598424841],"worldUpVector":[0,1,0],"pivotPoint":[37.81322646507962,43.88141314081513,40.03438798259458],"distanceToOrbit":806.276539067982,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
+  "view2": {"viewport":{"name":"","eye":[99.97230916985185,568.8908329153263,-120.01029576775429],"target":[81.51428263715795,-753.2667313893775,239.58144614031337],"up":[-0.04946167020653998,0.2627619643160633,0.963592078261929],"worldUpVector":[0,1,0],"pivotPoint":[48.193467686450305,18.558605555111114,11.800714547187397],"distanceToOrbit":566.2807733860644,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
+  "view3": {"viewport":{"name":"","eye":[-424.2691476449123,542.6505164276925,279.13303803246106],"target":[268.0259078155068,-460.8007897974295,-346.6149756761407],"up":[0.5432521913940823,0.6810027141839978,-0.4910319336046847],"worldUpVector":[0,1,0],"pivotPoint":[24.323528772924313,57.16362725342778,128.62718425779093],"distanceToOrbit":650.8747272159101,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
 }
