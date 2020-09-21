@@ -11,7 +11,7 @@ function launchViewer(urn, viewableId) {
   
   Autodesk.Viewing.Initializer(options, () => {
     viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'markup3d'] });
-    viewer.start(onSuccess);
+    viewer.start('', [], onSuccess);
     var documentId = 'urn:' + urn;
     localStorage.setItem('urn', urn);
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
