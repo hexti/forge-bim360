@@ -125,7 +125,6 @@ markup3d.prototype.load = function() {
 
 
   this.initMesh_Line = function() {
-      console.log('entrou')
       var geom = new THREE.Geometry();
       geom.vertices = [new THREE.Vector3(0, 0, 0),  new THREE.Vector3(0,1,1), new THREE.Vector3(1,1,1) ];
       geom.faces = [new THREE.Face3(0,1,2)];

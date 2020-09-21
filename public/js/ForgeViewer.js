@@ -17,6 +17,7 @@ function launchViewer(urn, viewableId) {
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
 
     function onSuccess() {
+      console.log('entrou')
       viewer.setBackgroundColor(0,0,0, 155,155,155);
       viewer.impl.toggleGroundShadow(true);
       viewer.loadExtension("markup3d");
