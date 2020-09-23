@@ -350,7 +350,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
 
         pushpinDataArray.push({
             id: issue.id,
-            label: issueAttributes.identifier,
+            label: 'Problema #' + issueAttributes.identifier + ' - ' + issueAttributes.root_cause,
             status: issue.type && issueAttributes.status.indexOf(issue.type) === -1 ? `${issue.type}-${issueAttributes.status}` : issueAttributes.status,
             position: pushpinAttributes.location,
             type: issue.type,
