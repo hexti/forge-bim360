@@ -109,7 +109,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
 
             // create the label for the dbId
             const $label = $(`
-            <label class="markup update" data-id="${icon.id}">
+            <label class="markup update" data-id="${icon.id}" style="font-size: 20px;">
                 <span class="${icon.css}"> ${icon.label || ''}</span>
             </label>
             `);
@@ -117,7 +117,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             const pos = this.viewer.worldToClient(icon.location);
 
             // position the label center to it
-            $label.css('left', Math.floor(pos.x - $label[0].offsetWidth / 2) + 'px');
+            $label.css('left', (Math.floor(pos.x - $label[0].offsetWidth / 2)) + 'px');
             $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
             $label.css({'display': this.viewer.isNodeVisible(i) ? 'block' : 'none', 'color': icon.color});
             $label.on('click', onClick);
@@ -169,7 +169,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             const pos = this.viewer.worldToClient(this._issues[id].attributes.pushpin_attributes.location);
 
             // position the label center to it
-            $label.css('left', Math.floor(pos.x - $label[0].offsetWidth / 2) + 'px');
+            $label.css('left', (Math.floor(pos.x - $label[0].offsetWidth / 2)+70) + 'px');
             $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
             $label.css('display', this.viewer.isNodeVisible(id) ? 'block' : 'none');
         }
