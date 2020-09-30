@@ -10,7 +10,7 @@ function launchViewer(urn, viewableId) {
   }; 
   
   Autodesk.Viewing.Initializer(options, () => {
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension'] });
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'IconMarkupExtension'] });
     viewer.start();
     var documentId = 'urn:' + urn;
     localStorage.setItem('urn', urn);

@@ -28,6 +28,7 @@ function BIM360IssueExtension(viewer, options) {
   this.hubId = null;
   this.issues = null;
   this.pushPinExtensionName = 'Autodesk.BIM360.Extension.PushPin';
+  this.iconMarkupExtensionName = 'Autodesk.BIM360.Extension.PushPin';
 }
 
 BIM360IssueExtension.prototype = Object.create(Autodesk.Viewing.Extension.prototype);
@@ -233,9 +234,6 @@ BIM360IssueExtension.prototype.getContainerId = function (href, urn, cb) {
   _this.containerId = url[count].substring(2);
   _this.hubId = selected.urn;
   cb();
-
-  
-
 }
 
 BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn) {
@@ -344,10 +342,10 @@ BIM360IssueExtension.prototype.showIssues = function () {
     // add the pushpin
     var issueAttributes = issue.attributes;
     var pushpinAttributes = issue.attributes.pushpin_attributes;
-    
+    console.log(pushpinAttributes)
     if (pushpinAttributes) {
         issue.type = issue.type.replace('quality_', ''); // temp fix during issues > quality_issues migration
-
+        console.log(pushpinAttributes.location)
         pushpinDataArray.push({
             id: issue.id,
             label: 'Problema #' + issueAttributes.identifier + ' - ' + issueAttributes.root_cause,
