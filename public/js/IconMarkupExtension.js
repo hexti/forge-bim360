@@ -119,7 +119,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             // position the label center to it
             $label.css('left', Math.floor(pos.x - $label[0].offsetWidth / 2) + 'px');
             $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
-            $label.css({'display': this.viewer.isNodeVisible(i) ? 'block' : 'none', 'color': 'Tomato'});
+            $label.css({'display': this.viewer.isNodeVisible(i) ? 'block' : 'none', 'color': icon.color});
             $label.on('click', onClick);
 
             $viewer.append($label);
@@ -196,8 +196,30 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                 this._issues = data.data
                 this._icons = []
                 var id = 0
+                var label
+                var color
                 data.data.forEach(issue => {
-                    this._icons.push({dbId: 5827, label: "30&#176;C", css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id})
+
+                    switch (issue.attributes.root_cause) {
+                        case 'ACO':
+                            color = 'Green'
+                            break;
+                    
+                        case 'INF':
+                            color = 'Orange'
+                            break;
+
+                        case 'DES':
+                            color = 'Red'
+                            break;
+
+                        default:
+                            color = 'Black'
+                            break;
+                    }
+
+                    label = '#' + issue.attributes.identifier + ' - ' + issue.attributes.root_cause
+                    this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color})
                     id += 1
                 });
                 console.log(id)

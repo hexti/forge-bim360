@@ -342,10 +342,10 @@ BIM360IssueExtension.prototype.showIssues = function () {
     // add the pushpin
     var issueAttributes = issue.attributes;
     var pushpinAttributes = issue.attributes.pushpin_attributes;
-    console.log(pushpinAttributes)
+    
     if (pushpinAttributes) {
         issue.type = issue.type.replace('quality_', ''); // temp fix during issues > quality_issues migration
-        console.log(pushpinAttributes.location)
+        
         pushpinDataArray.push({
             id: issue.id,
             label: 'Problema #' + issueAttributes.identifier + ' - ' + issueAttributes.root_cause,
