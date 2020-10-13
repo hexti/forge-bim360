@@ -76,8 +76,8 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             this._button.setState(this._enabled ? 0 : 1);
 
         };
-        this._button.setToolTip('Show Temperature');
-        this._button.container.children[0].classList.add('fas', 'fa-thermometer-full');
+        this._button.setToolTip('Anomalias');
+        this._button.container.children[0].classList.add('fas', 'fa-exclamation-triangle');
         this._group.addControl(this._button);
     }
 
@@ -109,7 +109,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
 
             // create the label for the dbId
             const $label = $(`
-            <label class="markup update" data-id="${icon.id}" style="font-size: 20px;">
+            <label class="markup update" data-id="${icon.id}" style="font-size: 15px;">
                 <span class="${icon.css}"> ${icon.label || ''}</span>
             </label>
             `);

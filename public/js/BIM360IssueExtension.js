@@ -80,7 +80,7 @@ BIM360IssueExtension.prototype.createUI = function () {
       _this.loadIssues();
     };
     loadQualityIssues.addClass('loadQualityIssues');
-    loadQualityIssues.setToolTip('Mostrar Problemas');
+    loadQualityIssues.setToolTip('Informações de Anomalias');
     this.subToolbar.addControl(loadQualityIssues);
   }
 
@@ -239,7 +239,8 @@ BIM360IssueExtension.prototype.getContainerId = function (href, urn, cb) {
 BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn) {
   var _this = this;
   var selected = getSelectedNode();
-  
+  let token = localStorage.getItem('token')
+
   $.ajax({
     url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
     type: 'GET',
@@ -250,6 +251,48 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     },
     success: function(data){
       _this.issues = data.data
+
+      _this.issues.forEach(issue => {
+        if(issue.attributes.attachment_count > 0){
+          console.log(issue)
+          axios.get(`${issue.relationships.attachments.links.related}`, {
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              }
+          })
+          .then((res) => {
+            res.data.data.forEach(attachment => {
+              var imageEl = document.createElement("img");
+              axios.get(`${attachment.attributes.url}`, {
+                  headers: {
+                      'Authorization': `Bearer ${token}`
+                  },
+                  responseType:"blob" 
+              })
+              .then((res) => {
+                  var reader = new window.FileReader();
+                  reader.readAsDataURL(res.data); 
+                  reader.onload = function() {
+                      var imageDataUrl = reader.result;
+                      var divNova = document.createElement("div"); 
+                      imageEl.setAttribute("src", imageDataUrl);
+                      imageEl.setAttribute("class", "img-thumbnail");
+                      divNova.appendChild(imageEl)
+                      var conteudoNovo = document.createTextNode("Olá, cumprimentos!");
+                      divNova.appendChild(conteudoNovo)
+                      $('#img').prepend(divNova)
+                  }
+              })
+              .catch((error) => {
+                  console.error(error)
+              })
+            });
+          })
+          .catch((error) => {
+              console.error(error)
+          })
+        } 
+      });
       
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
