@@ -252,45 +252,6 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     success: function(data){
       _this.issues = data.data
 
-      _this.issues.forEach(issue => {
-          axios.get(`${issue.relationships.attachments.links.related}`, {
-              headers: {
-                  'Authorization': `Bearer ${token}`
-              }
-          })
-          .then((res) => {
-            res.data.data.forEach(attachment => {
-              var imageEl = document.createElement("img");
-              axios.get(`${attachment.attributes.url}`, {
-                  headers: {
-                      'Authorization': `Bearer ${token}`
-                  },
-                  responseType:"blob" 
-              })
-              .then((res) => {
-                  var reader = new window.FileReader();
-                  reader.readAsDataURL(res.data); 
-                  reader.onload = function() {
-                    var imageDataUrl = reader.result;
-                    var divNova = document.createElement("div"); 
-                    imageEl.setAttribute("src", imageDataUrl);
-                    imageEl.setAttribute("class", "img-thumbnail");
-                    divNova.appendChild(imageEl)
-                    var conteudoNovo = document.createTextNode(attachment.attributes.name);
-                    divNova.appendChild(conteudoNovo)
-                    $('#img').prepend(divNova)
-                  }
-              })
-              .catch((error) => {
-                  console.error(error)
-              })
-            });
-          })
-          .catch((error) => {
-              console.error(error)
-          })
-      });
-      
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
       if (_this.panel) _this.panel.removeAllProperties();
@@ -356,7 +317,8 @@ BIM360IssueExtension.prototype.showIssues = function () {
       _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
       if(issue.attributes.attachment_count > 0){
-        _this.panel.addProperty('Anexo', '<a href="#" onclick="openAnexos()" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>', 'Issue ' + issue.attributes.identifier);
+        let url = issue.relationships.attachments.links.related.replace('//', '@')
+        _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
       }
       sortIssue.forEach(attribute => {
         if(attribute.type === 'list'){
@@ -453,6 +415,51 @@ var viewStates = {
   "view3": {"viewport":{"name":"","eye":[-424.2691476449123,542.6505164276925,279.13303803246106],"target":[268.0259078155068,-460.8007897974295,-346.6149756761407],"up":[0.5432521913940823,0.6810027141839978,-0.4910319336046847],"worldUpVector":[0,1,0],"pivotPoint":[24.323528772924313,57.16362725342778,128.62718425779093],"distanceToOrbit":650.8747272159101,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
 }
 
-function openAnexos(){
+function openAnexos(url){
+  this.getAnexos(url)
   $('#btn-anexo').click()
+}
+
+function getAnexos(url){
+  console.log(url)
+  let newUrl = url.replace('@', '//')
+  console.log(url)
+  let token = localStorage.getItem('token')
+  $('#img').html('')
+  axios.get(`${newUrl}`, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+  })
+  .then((res) => {
+    res.data.data.forEach(attachment => {
+      var imageEl = document.createElement("img");
+      axios.get(`${attachment.attributes.url}`, {
+          headers: {
+              'Authorization': `Bearer ${token}`
+          },
+          responseType:"blob" 
+      })
+      .then((res) => {
+          var reader = new window.FileReader();
+          reader.readAsDataURL(res.data); 
+          reader.onload = function() {
+            var imageDataUrl = reader.result;
+            var divNova = document.createElement("div"); 
+            imageEl.setAttribute("src", imageDataUrl);
+            imageEl.setAttribute("class", "img-thumbnail");
+            divNova.appendChild(imageEl)
+            var conteudoNovo = document.createTextNode(attachment.attributes.name);
+            divNova.appendChild(conteudoNovo)
+            $('#img').append(divNova)
+          }
+      })
+      .catch((error) => {
+          console.error(error)
+      })
+    });
+  })
+  .catch((error) => {
+      console.error(error)
+  })
 }
