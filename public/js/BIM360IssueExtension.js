@@ -253,8 +253,6 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
       _this.issues = data.data
 
       _this.issues.forEach(issue => {
-        if(issue.attributes.attachment_count > 0){
-          console.log(issue)
           axios.get(`${issue.relationships.attachments.links.related}`, {
               headers: {
                   'Authorization': `Bearer ${token}`
@@ -273,14 +271,14 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
                   var reader = new window.FileReader();
                   reader.readAsDataURL(res.data); 
                   reader.onload = function() {
-                      var imageDataUrl = reader.result;
-                      var divNova = document.createElement("div"); 
-                      imageEl.setAttribute("src", imageDataUrl);
-                      imageEl.setAttribute("class", "img-thumbnail");
-                      divNova.appendChild(imageEl)
-                      var conteudoNovo = document.createTextNode("Olá, cumprimentos!");
-                      divNova.appendChild(conteudoNovo)
-                      $('#img').prepend(divNova)
+                    var imageDataUrl = reader.result;
+                    var divNova = document.createElement("div"); 
+                    imageEl.setAttribute("src", imageDataUrl);
+                    imageEl.setAttribute("class", "img-thumbnail");
+                    divNova.appendChild(imageEl)
+                    var conteudoNovo = document.createTextNode(attachment.attributes.name);
+                    divNova.appendChild(conteudoNovo)
+                    $('#img').prepend(divNova)
                   }
               })
               .catch((error) => {
@@ -291,7 +289,6 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
           .catch((error) => {
               console.error(error)
           })
-        } 
       });
       
       // do we have issues on this document?
@@ -358,6 +355,9 @@ BIM360IssueExtension.prototype.showIssues = function () {
       _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
+      if(issue.attributes.attachment_count > 0){
+        _this.panel.addProperty('Anexo', '<a href="#" onclick="openAnexos()" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>', 'Issue ' + issue.attributes.identifier);
+      }
       sortIssue.forEach(attribute => {
         if(attribute.type === 'list'){
           axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${_this.containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
@@ -451,4 +451,8 @@ var viewStates = {
   "view1": {"viewport":{"name":"","eye":[363.4573315717432,454.00539656374525,653.3954041272863],"target":[-182.44454194347043,-270.9675826967336,-373.32406499505953],"up":[-0.2483724861641897,0.8485857169975204,-0.4671331598424841],"worldUpVector":[0,1,0],"pivotPoint":[37.81322646507962,43.88141314081513,40.03438798259458],"distanceToOrbit":806.276539067982,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
   "view2": {"viewport":{"name":"","eye":[99.97230916985185,568.8908329153263,-120.01029576775429],"target":[81.51428263715795,-753.2667313893775,239.58144614031337],"up":[-0.04946167020653998,0.2627619643160633,0.963592078261929],"worldUpVector":[0,1,0],"pivotPoint":[48.193467686450305,18.558605555111114,11.800714547187397],"distanceToOrbit":566.2807733860644,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
   "view3": {"viewport":{"name":"","eye":[-424.2691476449123,542.6505164276925,279.13303803246106],"target":[268.0259078155068,-460.8007897974295,-346.6149756761407],"up":[0.5432521913940823,0.6810027141839978,-0.4910319336046847],"worldUpVector":[0,1,0],"pivotPoint":[24.323528772924313,57.16362725342778,128.62718425779093],"distanceToOrbit":650.8747272159101,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
+}
+
+function openAnexos(){
+  $('#btn-anexo').click()
 }
