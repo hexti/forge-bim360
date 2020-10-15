@@ -129,6 +129,9 @@
 </body>
 <script>
   function showIssues(){
+    localStorage.removeItem('nivelAlerta');
+    localStorage.removeItem('causaRaiz');
+    localStorage.removeItem('issueId');
     let nivelAlerta = $('#nivelAlerta').val()
     let causaRaiz = $('#causaRaiz').val()
     let issueId = $('#issueId').val()
