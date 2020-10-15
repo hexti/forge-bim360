@@ -63,7 +63,7 @@ function launchViewer(urn, viewableId) {
       res.data.data.forEach(element => {
         options += `<option value="${element.id}">${element.attributes.identifier}</option>`
       });
-      console.log(options)
+      
       $("#issueId").html(options).show();
     })
     .catch((error) => {

@@ -265,7 +265,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     },
     success: function(data){
       let all_issues = data.data
-      console.log(all_issues)
+      
       if(nivelAlerta != null && nivelAlerta != ''){
         all_issues.forEach(function (issue, key, array) {
           issue.attributes.custom_attributes.forEach(attribute => {

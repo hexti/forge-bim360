@@ -37,7 +37,7 @@
         <ul class="nav navbar-nav navbar-right">
           <li class="dropdown">
             <div class="navbar-form navbar-left">
-              <button type="submit" id="btn-search-issues" class="btn btn-warning" data-toggle="modal" data-target="#filterIssues" style="display: none;"><i class="fas fa-search"></i></button>
+              <button type="submit" id="btn-search-issues" onclick="closePanel()" class="btn btn-warning" data-toggle="modal" data-target="#filterIssues" style="display: none;"><i class="fas fa-search"></i></button>
             </div>
           </li>
         </ul>
@@ -128,10 +128,15 @@
   </div>
 </body>
 <script>
+  function closePanel(){
+    $('.docking-panel-close').click();
+  }
+
   function showIssues(){
     localStorage.removeItem('nivelAlerta');
     localStorage.removeItem('causaRaiz');
     localStorage.removeItem('issueId');
+    
     let nivelAlerta = $('#nivelAlerta').val()
     let causaRaiz = $('#causaRaiz').val()
     let issueId = $('#issueId').val()
