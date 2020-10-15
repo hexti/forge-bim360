@@ -43,27 +43,33 @@ function launchViewer(urn, viewableId) {
       let options = '<option value="">Selecione ...</option>'
       
       res.data.data.forEach(element => {
-        options += `<option value="${element.attributes.id}">${element.attributes.title}</option>`
+        options += `<option value="${element.id}">${element.attributes.title}</option>`
       });
       $("#causaRaiz").html(options).show();
     })
     .catch((error) => {
       console.error(error)
     })
-
-    // $.ajax({
-    //   url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
-    //   type: 'GET',
-    //   // Fetch the stored token from localStorage and set in the header
-    //   headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-    //   error: function(XMLHttpRequest, textStatus, errorThrown){
-    //     alert('Cannot read Issues');
-    //   },
-    //   success: function(data){
-    //     let issues = data.data
-    //   }
-    // });
     
+    //Issues para popular o filtro
+    axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then((res) => {
+      let options = '<option value="">Selecione ...</option>'
+      
+      res.data.data.forEach(element => {
+        options += `<option value="${element.id}">${element.attributes.identifier}</option>`
+      });
+      console.log(options)
+      $("#issueId").html(options).show();
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
     $('#btn-search-issues').show()
 
     viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'IconMarkupExtension'] });

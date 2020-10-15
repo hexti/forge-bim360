@@ -242,49 +242,44 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
   let token = localStorage.getItem('token')
   _this.issues = []
 
+  var causaRaiz = localStorage.getItem('causaRaiz')
+  var nivelAlerta = localStorage.getItem('nivelAlerta')
+  var issueId = localStorage.getItem('issueId')
+  let filtros = '';
+
+  if(causaRaiz){
+    filtros += '&filter[root_cause_id]='+causaRaiz
+  }
+  
+  if(issueId){
+    filtros += '&filter[id]='+issueId
+  }
+  console.log(filtros)
   $.ajax({
-    url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
+    url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros}`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
     headers: {"Authorization": `Bearer ${token}`},
     error: function(XMLHttpRequest, textStatus, errorThrown){
-      alert('Cannot read Issues');
+      alert('Sem resultado de issue para essa consulta');
     },
     success: function(data){
       let all_issues = data.data
-      var nivelAlerta = localStorage.getItem('nivelAlerta')
-      var causaRaiz = localStorage.getItem('causaRaiz')
-      
-      // if(nivelAlerta != null || nivelAlerta == ''){
-      //   for (var i =0 ;  i < all_issues.length; i++) {
-      //     all_issues[i].attributes.custom_attributes.forEach(attribute => {
-      //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
-      //         _this.issues.push(all_issues[i])
-      //       }
-      //     });
-      //   }
-      // }else{
-      //   _this.issues = all_issues
-      // }
-      
-      if(nivelAlerta != null || nivelAlerta == ''){
+      console.log(all_issues)
+      if(nivelAlerta != null && nivelAlerta != ''){
         all_issues.forEach(function (issue, key, array) {
-          console.log(issue)
           issue.attributes.custom_attributes.forEach(attribute => {
             if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
               _this.issues.push(all_issues[key])
             }
           })
-
-          if(issue.attributes.root_cause_id == causaRaiz){
-
-          }
         });
       }else{
         _this.issues = all_issues
       }
 
       localStorage.removeItem('nivelAlerta');
+      localStorage.removeItem('causaRaiz');
 
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
@@ -301,7 +296,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
           _this.showIssues(); // show issues
       }
       else {
-        if (_this.panel) _this.panel.addProperty('No issues found', 'Use create issues button');
+        if (_this.panel) _this.panel.addProperty('Nem uma issue encontrada', 'Utilize outros filtros');
       }
     }
   });

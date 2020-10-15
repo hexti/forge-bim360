@@ -106,14 +106,18 @@
           <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
         </div>
         <div class="modal-body">
-          <label>Nivel de Alerta</label>
-          <select class="form-control" id="nivelAlerta" required>
+          <label>Issue</label>
+          <select class="form-control" id="issueId">
             <option value="">Selecione ...</option>
           </select>
-          <!-- <label>Causa Raiz</label>
-          <select class="form-control" id="causaRaiz" required>
+          <label>Causa Raiz</label>
+          <select class="form-control" id="causaRaiz">
             <option value="">Selecione ...</option>
-          </select> -->
+          </select>
+          <label>Nivel de Alerta</label>
+          <select class="form-control" id="nivelAlerta">
+            <option value="">Selecione ...</option>
+          </select>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
@@ -127,11 +131,14 @@
   function showIssues(){
     let nivelAlerta = $('#nivelAlerta').val()
     let causaRaiz = $('#causaRaiz').val()
-    if(!nivelAlerta && !causaRaiz){
+    let issueId = $('#issueId').val()
+    console.log(issueId)
+    if(!nivelAlerta && !causaRaiz && !issueId){
       alert('Selecione uma opção!')
     }else{
       localStorage.setItem('nivelAlerta', nivelAlerta)
-      // localStorage.setItem('causaRaiz', causaRaiz)
+      localStorage.setItem('causaRaiz', causaRaiz)
+      localStorage.setItem('issueId', issueId)
       $('.loadQualityIssues').click()
     }
   }
