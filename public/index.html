@@ -30,14 +30,19 @@
   <!-- Fixed navbar by Bootstrap: https://getbootstrap.com/examples/navbar-fixed-top/ -->
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
-      <ul class="nav navbar-nav left">
-        <li>
-          <a href="http://developer.autodesk.com" target="_blank">
-            <img alt="Autodesk Forge" src="//developer.static.autodesk.com/images/logo_forge-2-line.png" height="20">
-          </a>
-        </li>
-      </ul>
-    </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li><a href="#"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="110"></a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <div class="navbar-form navbar-left">
+              <button type="submit" id="btn-search-issues" class="btn btn-warning" data-toggle="modal" data-target="#filterIssues" style="display: none;"><i class="fas fa-search"></i></button>
+            </div>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
   </nav>
   
   <!-- End of navbar -->
@@ -69,16 +74,17 @@
       </div>
     </div>
   </div>
+
   <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
     Launch demo modal
   </button>
-  
+
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Anexos da Anomalia</h5>
+          <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -91,6 +97,44 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
+        </div>
+        <div class="modal-body">
+          <label>Nivel de Alerta</label>
+          <select class="form-control" id="nivelAlerta" required>
+            <option value="">Selecione ...</option>
+          </select>
+          <!-- <label>Causa Raiz</label>
+          <select class="form-control" id="causaRaiz" required>
+            <option value="">Selecione ...</option>
+          </select> -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
+<script>
+  function showIssues(){
+    let nivelAlerta = $('#nivelAlerta').val()
+    let causaRaiz = $('#causaRaiz').val()
+    if(!nivelAlerta && !causaRaiz){
+      alert('Selecione uma opção!')
+    }else{
+      localStorage.setItem('nivelAlerta', nivelAlerta)
+      // localStorage.setItem('causaRaiz', causaRaiz)
+      $('.loadQualityIssues').click()
+    }
+  }
+</script>
 <iframe id="hiddenFrame" style="visibility: hidden; display:none" />
 </html>

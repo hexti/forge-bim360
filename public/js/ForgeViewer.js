@@ -10,6 +10,62 @@ function launchViewer(urn, viewableId) {
   }; 
   
   Autodesk.Viewing.Initializer(options, () => {
+    var selected = getSelectedNode();
+    let url = selected.project.split("/");
+    let count = url.length - 1
+    let containerId = url[count].substring(2);
+
+    axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then((res) => {
+      let options = '<option value="">Selecione ...</option>'
+
+      res.data.results[1].metadata.list.options.forEach(element => {
+        options += `<option value="${element.id}">${element.value}</option>`
+      });
+
+      $("#nivelAlerta").html(options).show();
+    })
+    .catch((error) => {
+        console.error(error)
+    })
+    
+    //Causa raiz
+    axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/root-causes`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then((res) => {
+      let options = '<option value="">Selecione ...</option>'
+      
+      res.data.data.forEach(element => {
+        options += `<option value="${element.attributes.id}">${element.attributes.title}</option>`
+      });
+      $("#causaRaiz").html(options).show();
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
+    // $.ajax({
+    //   url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
+    //   type: 'GET',
+    //   // Fetch the stored token from localStorage and set in the header
+    //   headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+    //   error: function(XMLHttpRequest, textStatus, errorThrown){
+    //     alert('Cannot read Issues');
+    //   },
+    //   success: function(data){
+    //     let issues = data.data
+    //   }
+    // });
+    
+    $('#btn-search-issues').show()
+
     viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'IconMarkupExtension'] });
     viewer.start();
     var documentId = 'urn:' + urn;

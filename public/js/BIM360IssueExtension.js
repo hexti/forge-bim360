@@ -240,17 +240,51 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
   var _this = this;
   var selected = getSelectedNode();
   let token = localStorage.getItem('token')
+  _this.issues = []
 
   $.ajax({
     url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
-    headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+    headers: {"Authorization": `Bearer ${token}`},
     error: function(XMLHttpRequest, textStatus, errorThrown){
       alert('Cannot read Issues');
     },
     success: function(data){
-      _this.issues = data.data
+      let all_issues = data.data
+      var nivelAlerta = localStorage.getItem('nivelAlerta')
+      var causaRaiz = localStorage.getItem('causaRaiz')
+      
+      // if(nivelAlerta != null || nivelAlerta == ''){
+      //   for (var i =0 ;  i < all_issues.length; i++) {
+      //     all_issues[i].attributes.custom_attributes.forEach(attribute => {
+      //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+      //         _this.issues.push(all_issues[i])
+      //       }
+      //     });
+      //   }
+      // }else{
+      //   _this.issues = all_issues
+      // }
+      
+      if(nivelAlerta != null || nivelAlerta == ''){
+        all_issues.forEach(function (issue, key, array) {
+          console.log(issue)
+          issue.attributes.custom_attributes.forEach(attribute => {
+            if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+              _this.issues.push(all_issues[key])
+            }
+          })
+
+          if(issue.attributes.root_cause_id == causaRaiz){
+
+          }
+        });
+      }else{
+        _this.issues = all_issues
+      }
+
+      localStorage.removeItem('nivelAlerta');
 
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
@@ -275,7 +309,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
 
 BIM360IssueExtension.prototype.showIssues = function () {
   var _this = this;
-
+  
   //remove the list of last time
   var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
   pushPinExtension.removeAllItems();
@@ -320,8 +354,10 @@ BIM360IssueExtension.prototype.showIssues = function () {
         let url = issue.relationships.attachments.links.related.replace('//', '@')
         _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
       }
+
       sortIssue.forEach(attribute => {
         if(attribute.type === 'list'){
+          
           axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${_this.containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
               headers: {
                   'Authorization': `Bearer ${token}`
@@ -421,9 +457,7 @@ function openAnexos(url){
 }
 
 function getAnexos(url){
-  console.log(url)
   let newUrl = url.replace('@', '//')
-  console.log(url)
   let token = localStorage.getItem('token')
   $('#img').html('')
   axios.get(`${newUrl}`, {
