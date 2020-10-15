@@ -280,6 +280,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
 
       localStorage.removeItem('nivelAlerta');
       localStorage.removeItem('causaRaiz');
+      localStorage.removeItem('issueId');
 
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
