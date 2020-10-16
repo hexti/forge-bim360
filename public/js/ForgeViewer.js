@@ -34,16 +34,24 @@ function launchViewer(urn, viewableId) {
     })
     
     //Causa raiz
-    axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/root-causes`, {
+    
+    axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-root-cause-categories?include=rootcauses&limit=9999`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     })
     .then((res) => {
       let options = '<option value="">Selecione ...</option>'
-      
-      res.data.data.forEach(element => {
-        options += `<option value="${element.id}">${element.attributes.title}</option>`
+      // console.log(res.data.results)
+      res.data.results.forEach(element => {
+        if(element.isActive == true){
+          console.log(element)
+          element.rootCauses.forEach(causaRaiz => {
+            if(causaRaiz.isActive == true){
+              options += `<option value="${causaRaiz.id}">${causaRaiz.title}</option>`
+            }
+          });
+        }
       });
       $("#causaRaiz").html(options).show();
     })
