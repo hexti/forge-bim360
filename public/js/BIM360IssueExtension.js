@@ -254,7 +254,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
   if(issueId){
     filtros += '&filter[id]='+issueId
   }
-  console.log(filtros)
+  
   $.ajax({
     url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros}`,
     type: 'GET',

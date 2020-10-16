@@ -34,7 +34,6 @@ function launchViewer(urn, viewableId) {
     })
     
     //Causa raiz
-    
     axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-root-cause-categories?include=rootcauses&limit=9999`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -42,10 +41,8 @@ function launchViewer(urn, viewableId) {
     })
     .then((res) => {
       let options = '<option value="">Selecione ...</option>'
-      // console.log(res.data.results)
       res.data.results.forEach(element => {
         if(element.isActive == true){
-          console.log(element)
           element.rootCauses.forEach(causaRaiz => {
             if(causaRaiz.isActive == true){
               options += `<option value="${causaRaiz.id}">${causaRaiz.title}</option>`
