@@ -21,13 +21,19 @@ function launchViewer(urn, viewableId) {
         }
     })
     .then((res) => {
-      let options = '<option value="">Selecione ...</option>'
+      let optionsNivelAlerta = '<option value="">Selecione ...</option>'
+      let optionsFace = '<option value="">Selecione ...</option>'
 
-      res.data.results[1].metadata.list.options.forEach(element => {
-        options += `<option value="${element.id}">${element.value}</option>`
+      res.data.results[0].metadata.list.options.forEach(element => {
+        optionsFace += `<option value="${element.id}">${element.value}</option>`
       });
 
-      $("#nivelAlerta").html(options).show();
+      res.data.results[1].metadata.list.options.forEach(element => {
+        optionsNivelAlerta += `<option value="${element.id}">${element.value}</option>`
+      });
+
+      $("#nivelAlerta").html(optionsNivelAlerta).show();
+      $("#face").html(optionsFace).show();
     })
     .catch((error) => {
         console.error(error)
@@ -64,12 +70,22 @@ function launchViewer(urn, viewableId) {
     })
     .then((res) => {
       let options = '<option value="">Selecione ...</option>'
+      let optionsLocation = '<option value="">Selecione ...</option>'
+      let location = []
       
       res.data.data.forEach(element => {
         options += `<option value="${element.id}">${element.attributes.identifier}</option>`
+
+        //verifica se já existe um option com o mesmo valor
+        if($.inArray(element.attributes.location_description, location) === -1){
+          location.push(element.attributes.location_description);
+          optionsLocation += `<option value="${element.attributes.location_description}">${element.attributes.location_description}</option>`
+        } 
+
       });
       
       $("#issueId").html(options).show();
+      $("#location").html(optionsLocation).show();
     })
     .catch((error) => {
       console.error(error)

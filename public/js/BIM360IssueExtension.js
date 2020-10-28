@@ -245,7 +245,40 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
   var causaRaiz = localStorage.getItem('causaRaiz')
   var nivelAlerta = localStorage.getItem('nivelAlerta')
   var issueId = localStorage.getItem('issueId')
+  var localizacao = localStorage.getItem('localizacao')
+  var face = localStorage.getItem('face')
   let filtros = '';
+
+  
+  validacao = 0
+
+  if(causaRaiz && !localStorage && !face){
+    validacao = 1
+  }
+
+  if(causaRaiz && localStorage && !face){
+    validacao = 2
+  }
+
+  if(causaRaiz && !localStorage && face){
+    validacao = 3
+  }
+
+  if(causaRaiz && localStorage && face){
+    validacao = 4
+  }
+
+  if(!causaRaiz && localStorage && !face){
+    validacao = 5
+  }
+
+  if(!causaRaiz && localStorage && face){
+    validacao = 6
+  }
+
+  if(!causaRaiz && !localStorage && face){
+    validacao = 7
+  }
 
   if(causaRaiz){
     filtros += '&filter[root_cause_id]='+causaRaiz
@@ -255,8 +288,6 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     filtros += '&filter[id]='+issueId
   }
   
-  filtros += '&filter[location_description]=VL3'
-
   $.ajax({
     url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros}`,
     type: 'GET',
@@ -267,7 +298,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     },
     success: function(data){
       let all_issues = data.data
-      console.log(issue);
+      
       if(nivelAlerta != null && nivelAlerta != ''){
         all_issues.forEach(function (issue, key, array) {
           issue.attributes.custom_attributes.forEach(attribute => {

@@ -118,6 +118,14 @@
           <select class="form-control" id="nivelAlerta">
             <option value="">Selecione ...</option>
           </select>
+          <label>Elemento (Detalhe da Locaização)</label>
+          <select class="form-control" id="location">
+            <option value="">Selecione ...</option>
+          </select>
+          <label>Face</label>
+          <select class="form-control" id="face">
+            <option value="">Selecione ...</option>
+          </select>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
@@ -136,17 +144,23 @@
     localStorage.removeItem('nivelAlerta');
     localStorage.removeItem('causaRaiz');
     localStorage.removeItem('issueId');
+    localStorage.removeItem('localizacao');
+    localStorage.removeItem('face');
     
     let nivelAlerta = $('#nivelAlerta').val()
     let causaRaiz = $('#causaRaiz').val()
     let issueId = $('#issueId').val()
-    console.log(issueId)
+    let localizacao = $('#localizacao').val()
+    let face = $('#face').val()
+    
     if(!nivelAlerta && !causaRaiz && !issueId){
       alert('Selecione uma opção!')
     }else{
       localStorage.setItem('nivelAlerta', nivelAlerta)
       localStorage.setItem('causaRaiz', causaRaiz)
       localStorage.setItem('issueId', issueId)
+      localStorage.setItem('localizacao', localizacao)
+      localStorage.setItem('face', face)
       $('.loadQualityIssues').click()
     }
   }
