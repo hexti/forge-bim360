@@ -23,6 +23,8 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         this._icons = options.icons || [];
         this._viewer = viewer
         this._issues = this.getIssues();
+        this.panel = null
+        this.token = localStorage.getItem('token')
     }
 
     load() {
@@ -82,22 +84,86 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
     }
 
     showIcons(show) {
-        const $viewer = $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer');
+        let _this = this
+        const $viewer = $('#' + _this.viewer.clientContainer.id + ' div.adsk-viewing-viewer');
 
         // remove previous...
-        $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer label.markup').remove();
+        $('#' + _this.viewer.clientContainer.id + ' div.adsk-viewing-viewer label.markup').remove();
         if (!show) return;
 
         // do we have anything to show?
-        if (this._icons === undefined || this.icons === null) return;
+        if (_this._icons === undefined || _this.icons === null) return;
 
         // do we have access to the instance tree?
-        const tree = this.viewer.model.getInstanceTree();
+        const tree = _this.viewer.model.getInstanceTree();
         if (tree === undefined) { console.log('Loading tree...'); return; }
-
+        
+        _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
         const onClick = (e) => {
-            this.viewer.select($(e.currentTarget).data('id'));
-            this.viewer.utilities.fitToView();
+            _this.viewer.select($(e.currentTarget).data('id'));
+            _this.viewer.utilities.fitToView();
+
+            if (_this.panel) _this.panel.removeAllProperties();
+
+            if(_this.panel.isVisible() == false) _this.panel.setVisible(!_this.panel.isVisible());
+            
+            _this.panel.addProperty('Loading...', '');
+            let id = $(e.currentTarget).data('content')
+            
+            var selected = getSelectedNode();
+            let url = selected.project.split("/");
+            let count = url.length - 1
+            let containerId = url[count].substring(2);
+
+            $.ajax({
+                url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues/${id}`,
+                type: 'GET',
+                // Fetch the stored token from localStorage and set in the header
+                headers: {"Authorization": `Bearer ${_this.token}`},
+                error: function(XMLHttpRequest, textStatus, errorThrown){
+                  alert('Sem resultado de issue para essa consulta');
+                },
+                success: function(data){
+                    let issue = data.data
+                    console.log(issue)
+                    var dateCreated = moment(issue.attributes.created_at);
+
+                    if (_this.panel) _this.panel.removeAllProperties();
+                    
+                    _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
+                    _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier);
+                    _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
+                    _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
+                    if(issue.attributes.attachment_count > 0){
+                        let url = issue.relationships.attachments.links.related.replace('//', '@')
+                        _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
+                    }
+                  
+                    issue.attributes.custom_attributes.forEach(attribute => {
+                        if(attribute.type === 'list'){
+                        
+                        axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
+                            headers: {
+                                'Authorization': `Bearer ${_this.token}`
+                            }
+                        })
+                        .then((res) => {
+                            let options = res.data.results[0].metadata.list.options
+                            options.forEach(option => {
+                            if(option.id === attribute.value){
+                                _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+                            }
+                            });
+                        })
+                        .catch((error) => {
+                            console.error(error)
+                        })
+                        }else{
+                            _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
+                        }
+                  });
+                }
+            });
         };
 
         this._frags = {}
@@ -109,7 +175,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
 
             // create the label for the dbId
             const $label = $(`
-            <label class="markup update" data-id="${icon.id}" style="font-size: 15px;">
+            <label class="markup update" data-id="${icon.id}" data-content="${icon.content}" style="font-size: 15px;">
                 <span class="${icon.css}"> ${icon.label || ''}</span>
             </label>
             `);
@@ -163,7 +229,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         for (const label of $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer .update')) {
             const $label = $(label);
             const id = $label.data('id');
-
+            
             // get the center of the dbId (based on its fragIds bounding boxes)
             //const pos = this.viewer.worldToClient(this.getModifiedWorldBoundingBox(id).center());
             const pos = this.viewer.worldToClient(this._issues[id].attributes.pushpin_attributes.location);
@@ -219,10 +285,9 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                     }
 
                     label = '#' + issue.attributes.identifier + ' - ' + issue.attributes.root_cause
-                    this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color})
+                    this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
                     id += 1
                 });
-                console.log(id)
             }.bind(this)
         });
     }

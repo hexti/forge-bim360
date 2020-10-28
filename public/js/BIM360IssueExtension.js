@@ -255,6 +255,8 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     filtros += '&filter[id]='+issueId
   }
   
+  filtros += '&filter[location_description]=VL3'
+
   $.ajax({
     url: `https://developer.api.autodesk.com/issues/v1/containers/${_this.containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros}`,
     type: 'GET',
@@ -265,7 +267,7 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     },
     success: function(data){
       let all_issues = data.data
-      
+      console.log(issue);
       if(nivelAlerta != null && nivelAlerta != ''){
         all_issues.forEach(function (issue, key, array) {
           issue.attributes.custom_attributes.forEach(attribute => {
@@ -344,6 +346,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
     // show issue on panel
     if (_this.panel) {
       _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
+      _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
       if(issue.attributes.attachment_count > 0){
