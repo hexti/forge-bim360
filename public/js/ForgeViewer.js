@@ -22,7 +22,7 @@ function launchViewer(urn, viewableId) {
     })
     .then((res) => {
       let optionsNivelAlerta = '<option value="">Selecione ...</option>'
-      let optionsFace = '<option value="">Selecione ...</option>'
+      let optionsFace = '<option value="" selected>Selecione ...</option>'
 
       res.data.results[0].metadata.list.options.forEach(element => {
         optionsFace += `<option value="${element.id}">${element.value}</option>`

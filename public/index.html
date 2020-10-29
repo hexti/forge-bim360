@@ -116,7 +116,7 @@
           </select>
           <label>Nivel de Alerta</label>
           <select class="form-control" id="nivelAlerta">
-            <option value="">Selecione ...</option>
+            <option value="" selected>Selecione ...</option>
           </select>
           <label>Elemento (Detalhe da Locaização)</label>
           <select class="form-control" id="location">
@@ -124,7 +124,7 @@
           </select>
           <label>Face</label>
           <select class="form-control" id="face">
-            <option value="">Selecione ...</option>
+            <option value="" selected>Selecione ...</option>
           </select>
         </div>
         <div class="modal-footer">
@@ -150,10 +150,10 @@
     let nivelAlerta = $('#nivelAlerta').val()
     let causaRaiz = $('#causaRaiz').val()
     let issueId = $('#issueId').val()
-    let localizacao = $('#localizacao').val()
+    let localizacao = $('#location').val()
     let face = $('#face').val()
     
-    if(!nivelAlerta && !causaRaiz && !issueId){
+    if(!nivelAlerta && !causaRaiz && !issueId && !localStorage && !face){
       alert('Selecione uma opção!')
     }else{
       localStorage.setItem('nivelAlerta', nivelAlerta)

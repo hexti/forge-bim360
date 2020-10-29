@@ -242,44 +242,48 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
   let token = localStorage.getItem('token')
   _this.issues = []
 
-  var causaRaiz = localStorage.getItem('causaRaiz')
+  var causaRaiz = ''
+  causaRaiz = localStorage.getItem('causaRaiz')
   var nivelAlerta = localStorage.getItem('nivelAlerta')
   var issueId = localStorage.getItem('issueId')
   var localizacao = localStorage.getItem('localizacao')
   var face = localStorage.getItem('face')
   let filtros = '';
-
   
+  if (nivelAlerta === '') nivelAlerta = false
+  if (face === '') face = false
+  if (localizacao === 'undefined') localizacao = false
+
   validacao = 0
 
-  if(causaRaiz && !localStorage && !face){
+  if(nivelAlerta && !localizacao && !face){
     validacao = 1
   }
 
-  if(causaRaiz && localStorage && !face){
+  if(nivelAlerta && localizacao && !face){
     validacao = 2
   }
 
-  if(causaRaiz && !localStorage && face){
+  if(nivelAlerta && !localizacao && face){
     validacao = 3
   }
 
-  if(causaRaiz && localStorage && face){
+  if(nivelAlerta && localizacao && face){
     validacao = 4
   }
 
-  if(!causaRaiz && localStorage && !face){
+  if(!nivelAlerta && localizacao && !face){
     validacao = 5
   }
 
-  if(!causaRaiz && localStorage && face){
+  if(!nivelAlerta && localizacao && face){
     validacao = 6
   }
 
-  if(!causaRaiz && !localStorage && face){
+  if(!nivelAlerta && !localizacao && face){
     validacao = 7
   }
-
+  
   if(causaRaiz){
     filtros += '&filter[root_cause_id]='+causaRaiz
   }
@@ -298,14 +302,83 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
     },
     success: function(data){
       let all_issues = data.data
-      
-      if(nivelAlerta != null && nivelAlerta != ''){
+      if(validacao > 0){
         all_issues.forEach(function (issue, key, array) {
-          issue.attributes.custom_attributes.forEach(attribute => {
-            if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
-              _this.issues.push(all_issues[key])
-            }
-          })
+          if(validacao == 1){
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+                _this.issues.push(all_issues[key])
+              }
+            })
+
+          }
+
+          if(validacao == 2){
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
+          if(validacao == 3){
+            let insert = [ nivel => false, loc => false ]
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+                insert.nivel = true
+              }
+
+              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
+                insert.loc = true
+              }
+
+              if(insert.loc && insert.nivel){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
+          if(validacao == 4){
+            let insert = [ nivel => false, loc => false ]
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
+                insert.nivel = true
+              }
+
+              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
+                insert.loc = true
+              }
+
+              if(insert.loc && insert.nivel){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
+          if(validacao == 5){
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(issue.attributes.location_description == localizacao){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
+          if(validacao == 6){
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
+          if(validacao == 7){
+            issue.attributes.custom_attributes.forEach(attribute => {
+              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
+                _this.issues.push(all_issues[key])
+              }
+            })
+          }
+
         });
       }else{
         _this.issues = all_issues
@@ -314,6 +387,8 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
       localStorage.removeItem('nivelAlerta');
       localStorage.removeItem('causaRaiz');
       localStorage.removeItem('issueId');
+      localStorage.removeItem('face');
+      localStorage.removeItem('localizacao');
 
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
@@ -377,6 +452,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
     // show issue on panel
     if (_this.panel) {
       _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
+      _this.panel.addProperty('Causa Raiz', issue.attributes.root_cause, 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
       _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
