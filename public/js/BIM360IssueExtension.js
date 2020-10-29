@@ -302,8 +302,13 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
       if(nivelAlerta != null && nivelAlerta != ''){
         all_issues.forEach(function (issue, key, array) {
           issue.attributes.custom_attributes.forEach(attribute => {
-            if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
-              _this.issues.push(all_issues[key])
+            if(validacao > 0){
+
+              if(validacao == 1){
+                if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+                  _this.issues.push(all_issues[key])
+                }
+              }
             }
           })
         });
