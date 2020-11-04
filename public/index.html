@@ -40,6 +40,11 @@
               <button type="submit" id="btn-search-issues" onclick="closePanel()" class="btn btn-warning" data-toggle="modal" data-target="#filterIssues" style="display: none;"><i class="fas fa-search"></i></button>
             </div>
           </li>
+          <li class="dropdown">
+            <div class="navbar-form navbar-left">
+              <button type="submit" id="btn-search-issues" onclick="exportXLS()" class="btn btn-success"><i class="fas fa-file-excel"></i></button>
+            </div>
+          </li>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
@@ -163,6 +168,30 @@
       localStorage.setItem('face', face)
       $('.loadQualityIssues').click()
     }
+  }
+
+  function exportXLS(){
+    let selected = getSelectedNode()
+
+    let url = selected.project.split("/");
+    let count = url.length - 1
+    let containerId = url[count].substring(2);
+    let urn = selected.urn;
+
+    axios.get(`/excel/xls?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
+    .then((res) => {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'report.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // console.log(res.data.data.data)
+    })
+    .catch((error) => {
+        console.error(error)
+    })
   }
 </script>
 <iframe id="hiddenFrame" style="visibility: hidden; display:none" />

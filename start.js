@@ -25,4 +25,263 @@ app.use((err, req, res, next) => {
     res.status(err.statusCode).json(err);
 });
 
+
+app.get('/excel/xls', async (req, res) => {
+    const axios = require('axios')
+    let token = req.query.token
+    let containerId = req.query.container
+    let urn = req.query.urn
+    let _res = res
+    await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then((res2) => {
+
+        const excel = require('node-excel-export');
+ 
+        // You can define styles as json object
+        const styles = {
+        headerDark: {
+            fill: {
+            fgColor: {
+                rgb: 'FFFFFF'
+            }
+            },
+            font: {
+            color: {
+                rgb: '000000'
+            },
+            sz: 14,
+            bold: true,
+            underline: true
+            }
+        },
+        cellPink: {
+            fill: {
+            fgColor: {
+                rgb: 'FFFFCCFF'
+            }
+            }
+        },
+        cellGreen: {
+            fill: {
+            fgColor: {
+                rgb: 'FF00FF00'
+            }
+            }
+        },
+        cellNone: {
+            fill: {
+            fgColor: {
+                rgb: '000000'
+            }
+            }
+        }
+        };
+        
+        //Array of objects representing heading rows (very top)
+        const heading = [
+        [{value: 'a1', style: styles.headerDark}, {value: 'b1', style: styles.headerDark}, {value: 'c1', style: styles.headerDark}],
+        ['a2', 'b2', 'c2'] // <-- It can be only values
+        ];
+        
+        //Here you specify the export structure
+        const specification = {
+        issue_id: { // <- the key should match the actual data key
+            displayName: 'Nº Seq.', // <- Here you specify the column header
+            headerStyle: styles.headerDark, // <- Header style
+            // cellStyle: function(value, row) { // <- style renderer function
+            // // if the status is 1 then color in green else color in red
+            // // Notice how we use another cell value to style the current one
+            // return (row.status_id == 1) ? styles.cellGreen : {fill: {fgColor: {rgb: 'FFFF0000'}}}; // <- Inline cell style is possible 
+            // },
+            width: 60 // <- width in pixels
+        },
+        localizacao: {
+            displayName: 'Localização',
+            headerStyle: styles.headerDark,
+            // cellFormat: function(value, row) { // <- Renderer function, you can access also any row.property
+            // return (value == 1) ? 'Active' : 'Inactive';
+            // },
+            width: 100 // <- width in chars (when the number is passed as string)
+        },
+        elemento_estrutural: {
+            displayName: 'Elemento Estrutural',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        root_cause: {
+            displayName: 'Sigla',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        face: {
+            displayName: 'Face',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        causa_provavel: {
+            displayName: 'Causa Provável',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        estado: {
+            displayName: 'Estado',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        dimensao_horizontal: {
+            displayName: 'Dimensão horizontal (m)/ Comprimento (m)',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        dimensao_vertical: {
+            displayName: 'Dimensão vertical (m)',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        quantidade: {
+            displayName: 'Quantidade (un.)',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        espacamento: {
+            displayName: 'Espaçamento médio',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        abertura: {
+            displayName: 'Abertura máxima (mm)',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        nivel_alerta: {
+            displayName: 'Nível de Alerta',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        description: {
+            displayName: 'Descrição',
+            headerStyle: styles.headerDark,
+            //cellStyle: styles.cellPink, // <- Cell style
+            width: 220 // <- width in pixels
+        },
+        }
+        
+        // The data set should have the following shape (Array of Objects)
+        // The order of the keys is irrelevant, it is also irrelevant if the
+        // dataset contains more fields as the report is build based on the
+        // specification provided above. But you should have all the fields
+        // that are listed in the report specification
+        const dataset = [
+        // {customer_name: 'IBM', status_id: 1, note: 'some note', misc: 'not shown'},
+        // {customer_name: 'HP', status_id: 0, note: 'some note'},
+        // {customer_name: 'MS', status_id: 0, note: 'some note', misc: 'not shown'}
+        ]
+        console.log(res2.data.data)
+        res2.data.data.forEach(issue => {
+            let _face = ''
+            axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${issue.attributes.custom_attributes[1].id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then((res3) => {
+                let options = res3.data.results[0].metadata.list.options
+                options.forEach(option => {
+                if(option.id === issue.attributes.custom_attributes[1].value){
+                   _face = option.value
+                   console.log(_face)
+                }
+                });
+            })
+
+            let dimensaoVertical = ''
+            // axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${issue.attributes.custom_attributes[5].id}`, {
+            //     headers: {
+            //         'Authorization': `Bearer ${token}`
+            //     }
+            // })
+            // .then((res) => {
+            //     options.forEach(option => {
+            //     if(option.id === issue.attributes.custom_attributes[5].value){
+            //         dimensaoVertical = option.value
+            //     }
+            //     });
+            // })
+
+            dataset.push({
+                issue_id: issue.attributes.identifier, 
+                localizacao: issue.attributes.location_description, 
+                elemento_estrutural: issue.attributes.location_description,
+                root_cause: issue.attributes.root_cause,
+                face: _face,
+                causa_provavel: issue.attributes.custom_attributes[4].value,
+                estado: issue.attributes.custom_attributes[0].value,
+                dimensao_horizontal: issue.attributes.custom_attributes[8].value,
+                dimensao_vertical: dimensaoVertical,
+                quantidade: issue.attributes.custom_attributes[2].value,
+                espacamento: issue.attributes.custom_attributes[6].value,
+                abertura: issue.attributes.custom_attributes[7].value,
+                nivel_alerta: issue.attributes.custom_attributes[7].value,
+                description: issue.attributes.description,
+            })
+        });
+        
+        // Define an array of merges. 1-1 = A:1
+        // The merges are independent of the data.
+        // A merge will overwrite all data _not_ in the top-left cell.
+        const merges = [
+        { start: { row: 1, column: 1 }, end: { row: 1, column: 10 } },
+        { start: { row: 2, column: 1 }, end: { row: 2, column: 5 } },
+        { start: { row: 2, column: 6 }, end: { row: 2, column: 10 } }
+        ]
+        
+        // Create the excel report.
+        // This function will return Buffer
+        const report = excel.buildExport(
+        [ // <- Notice that this is an array. Pass multiple sheets to create multi sheet report
+            {
+            name: 'Report', // <- Specify sheet name (optional)
+            //heading: heading, // <- Raw heading array (optional)
+            // merges: merges, // <- Merge cell ranges
+            specification: specification, // <- Report specification
+            data: dataset // <-- Report data
+            }
+        ]
+        );
+        
+        // You can then return this straight
+        _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
+        return _res.send(report);
+        
+        // _res.json({
+        //     data: res2.data
+        // })
+    })
+    .catch((error) => {
+        _res.json({
+            data: error
+        })
+        console.error(error)
+    })
+
+    // res.json({
+    //     file: req
+    // });
+})
+
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
