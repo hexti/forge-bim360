@@ -91,7 +91,7 @@ function launchViewer(urn, viewableId) {
       console.error(error)
     })
 
-    $('#btn-search-issues').show()
+    $('.btn-search-issues').show()
 
     viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'IconMarkupExtension'] });
     viewer.start();
