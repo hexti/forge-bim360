@@ -28,21 +28,33 @@ app.use((err, req, res, next) => {
 
 app.get('/excel/xls', async (req, res) => {
     const axios = require('axios')
+    const excel = require('node-excel-export')
+
     let token = req.query.token
     let containerId = req.query.container
     let urn = req.query.urn
     let _res = res
-    await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
+    const dataset = []
+    
+    const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
-    .then((res2) => {
+    
+    const issues = result.data.data
+    
+    const opt =  await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
 
-        const excel = require('node-excel-export');
- 
-        // You can define styles as json object
-        const styles = {
+    const lists = opt.data.results
+    console.log(issues)
+    // console.log(opt)
+    // console.log(lists)
+    const styles = {
         headerDark: {
             fill: {
             fgColor: {
@@ -179,109 +191,73 @@ app.get('/excel/xls', async (req, res) => {
             //cellStyle: styles.cellPink, // <- Cell style
             width: 220 // <- width in pixels
         },
-        }
-        
-        // The data set should have the following shape (Array of Objects)
-        // The order of the keys is irrelevant, it is also irrelevant if the
-        // dataset contains more fields as the report is build based on the
-        // specification provided above. But you should have all the fields
-        // that are listed in the report specification
-        const dataset = [
-        // {customer_name: 'IBM', status_id: 1, note: 'some note', misc: 'not shown'},
-        // {customer_name: 'HP', status_id: 0, note: 'some note'},
-        // {customer_name: 'MS', status_id: 0, note: 'some note', misc: 'not shown'}
-        ]
-        console.log(res2.data.data)
-        res2.data.data.forEach(issue => {
-            let _face = ''
-            axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${issue.attributes.custom_attributes[1].id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then((res3) => {
-                let options = res3.data.results[0].metadata.list.options
-                options.forEach(option => {
-                if(option.id === issue.attributes.custom_attributes[1].value){
-                   _face = option.value
-                   console.log(_face)
-                }
+
+    }
+
+    let dimensaoVertical = ''
+    let _face = ''
+
+    issues.forEach(issue => {
+        let _issue = issue
+        lists.forEach(list => {
+            if(_issue.attributes.custom_attributes[1].id == list.id){
+                list.metadata.list.options.forEach(option => {
+                    if(option.id === _issue.attributes.custom_attributes[1].value){
+                        _face = option.value
+                    }
                 });
-            })
+            }
 
-            let dimensaoVertical = ''
-            // axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${issue.attributes.custom_attributes[5].id}`, {
-            //     headers: {
-            //         'Authorization': `Bearer ${token}`
-            //     }
-            // })
-            // .then((res) => {
-            //     options.forEach(option => {
-            //     if(option.id === issue.attributes.custom_attributes[5].value){
-            //         dimensaoVertical = option.value
-            //     }
-            //     });
-            // })
+            if(_issue.attributes.custom_attributes[5].id == list.id){
+                list.metadata.list.options.forEach(option => {
+                    if(option.id === _issue.attributes.custom_attributes[1].value){
+                        dimensaoVertical = option.value
+                    }
+                });
+            }
+        })
 
-            dataset.push({
-                issue_id: issue.attributes.identifier, 
-                localizacao: issue.attributes.location_description, 
-                elemento_estrutural: issue.attributes.location_description,
-                root_cause: issue.attributes.root_cause,
-                face: _face,
-                causa_provavel: issue.attributes.custom_attributes[4].value,
-                estado: issue.attributes.custom_attributes[0].value,
-                dimensao_horizontal: issue.attributes.custom_attributes[8].value,
-                dimensao_vertical: dimensaoVertical,
-                quantidade: issue.attributes.custom_attributes[2].value,
-                espacamento: issue.attributes.custom_attributes[6].value,
-                abertura: issue.attributes.custom_attributes[7].value,
-                nivel_alerta: issue.attributes.custom_attributes[7].value,
-                description: issue.attributes.description,
-            })
-        });
-        
-        // Define an array of merges. 1-1 = A:1
-        // The merges are independent of the data.
-        // A merge will overwrite all data _not_ in the top-left cell.
-        const merges = [
+        dataset.push({
+            issue_id: issue.attributes.identifier, 
+            localizacao: issue.attributes.location_description, 
+            elemento_estrutural: issue.attributes.location_description,
+            root_cause: issue.attributes.root_cause,
+            face: _face,
+            causa_provavel: issue.attributes.custom_attributes[4].value,
+            estado: issue.attributes.custom_attributes[0].value,
+            dimensao_horizontal: issue.attributes.custom_attributes[8].value,
+            dimensao_vertical: dimensaoVertical,
+            quantidade: issue.attributes.custom_attributes[2].value,
+            espacamento: issue.attributes.custom_attributes[6].value,
+            abertura: issue.attributes.custom_attributes[7].value,
+            nivel_alerta: issue.attributes.custom_attributes[7].value,
+            description: issue.attributes.description,
+        })
+    });
+
+    const merges = [
         { start: { row: 1, column: 1 }, end: { row: 1, column: 10 } },
         { start: { row: 2, column: 1 }, end: { row: 2, column: 5 } },
         { start: { row: 2, column: 6 }, end: { row: 2, column: 10 } }
-        ]
-        
-        // Create the excel report.
-        // This function will return Buffer
-        const report = excel.buildExport(
-        [ // <- Notice that this is an array. Pass multiple sheets to create multi sheet report
-            {
-            name: 'Report', // <- Specify sheet name (optional)
-            //heading: heading, // <- Raw heading array (optional)
-            // merges: merges, // <- Merge cell ranges
-            specification: specification, // <- Report specification
-            data: dataset // <-- Report data
-            }
-        ]
-        );
-        
-        // You can then return this straight
-        _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
-        return _res.send(report);
-        
-        // _res.json({
-        //     data: res2.data
-        // })
-    })
-    .catch((error) => {
-        _res.json({
-            data: error
-        })
-        console.error(error)
-    })
-
-    // res.json({
-    //     file: req
-    // });
+    ]
+    
+    // Create the excel report.
+    // This function will return Buffer
+    const report = excel.buildExport(
+    [ // <- Notice that this is an array. Pass multiple sheets to create multi sheet report
+        {
+        name: 'Report', // <- Specify sheet name (optional)
+        //heading: heading, // <- Raw heading array (optional)
+        // merges: merges, // <- Merge cell ranges
+        specification: specification, // <- Report specification
+        data: dataset // <-- Report data
+        }
+    ]
+    );
+    
+    // You can then return this straight
+    _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
+    return _res.send(report);
 })
 
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
