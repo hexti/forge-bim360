@@ -26,7 +26,7 @@ app.use((err, req, res, next) => {
 });
 
 
-app.get('/excel/xls', async (req, res) => {
+app.get('/export/xls', async (req, res) => {
     const axios = require('axios')
     const excel = require('node-excel-export')
 
@@ -51,9 +51,6 @@ app.get('/excel/xls', async (req, res) => {
     })
 
     const lists = opt.data.results
-    console.log(issues)
-    // console.log(opt)
-    // console.log(lists)
     const styles = {
         headerDark: {
             fill: {
@@ -258,6 +255,253 @@ app.get('/excel/xls', async (req, res) => {
     // You can then return this straight
     _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
     return _res.send(report);
+})
+
+app.get('/export/pdf', async (req, res) => {
+    var fs = require('fs');
+    var pdf = require('html-pdf');
+    const axios = require('axios');
+    var FileReader = require('filereader')
+
+    let token = req.query.token
+    let containerId = req.query.container
+    let urn = req.query.urn
+    let _res = res
+
+    const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    
+    const issues = result.data.data
+
+    const opt =  await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+
+    const lists = opt.data.results
+
+    var html = `
+    <style type="text/css">
+        .tg  {border-collapse:collapse;border-spacing:0;}
+        .tg td{border-color:inherit;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg th{border-color:inherit;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg .tg-doeh{border-color:inherit;font-size:10px;font-weight:bold;text-align:center;vertical-align:top}
+        .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+        .tg .tg-hq8k{border-color:inherit;color:#343434;font-size:100%;text-align:center;vertical-align:middle}
+        .tg .tg-l6li{border-color:inherit;font-size:10px;text-align:left;vertical-align:top}
+        .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+        .tg .tg-cudy{border-color:inherit;font-family:Arial, Helvetica, sans-serif !important;;font-weight:bold;text-align:center;
+        vertical-align:top}
+        .tg .tg-0lax{border-color:inherit;text-align:left;vertical-align:top}
+        .tg .tg-jpc1{border-color:inherit;font-size:10px;text-align:left;vertical-align:top}
+    </style>`;
+    let count = 0
+    issues.forEach(async issue => {
+        let _issue = issue
+        lists.forEach(list => {
+            if(_issue.attributes.custom_attributes[1].id == list.id){
+                list.metadata.list.options.forEach(option => {
+                    if(option.id === _issue.attributes.custom_attributes[1].value){
+                        _face = option.value
+                    }
+                });
+            }
+        })
+
+        html += `<table class="tg" style="table-layout: fixed; width: 95%">
+            <colgroup>
+                <col style="width: 36px">
+                <col style="width: 107px">
+                <col style="width: 129px">
+                <col style="width: 52px">
+                <col style="width: 35px">
+                <col style="width: 98px">
+                <col style="width: 34px">
+                <col style="width: 36px">
+            </colgroup>
+            <thead>
+            <tr>
+            <th class="tg-0pky" style="text-align:center;vertical-align:middle" colspan="2" rowspan="3"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="100%"></th>
+                <th class="tg-cudy" colspan="6">Mapeamento de Anomalias</th>
+            </tr>
+            <tr>
+                <td class="tg-hq8k" colspan="6">Nome do Projeto</td>
+            </tr>
+            <tr>
+                <td class="tg-c3ow" colspan="6">Anomalia Nº ${issue.attributes.identifier}</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="tg-0pky" colspan="8"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-doeh" colspan="6">Informações Gerais</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-l6li">Localização:</td>
+                <td class="tg-l6li">${issue.attributes.location_description}</td>
+                <td class="tg-l6li" colspan="2">Causa Raiz:</td>
+                <td class="tg-l6li" colspan="2">${issue.attributes.root_cause}</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-l6li">Elemento Estrutural:</td>
+                <td class="tg-l6li">${issue.attributes.location_description}</td>
+                <td class="tg-l6li" colspan="2">Nível de Alerta:</td>
+                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[7].value}</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky" colspan="8"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-doeh" colspan="6">Detalhes da Anomalia</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-l6li">Face:</td>
+                <td class="tg-l6li">${_face}</td>
+                <td class="tg-l6li" colspan="2">Quantidade:</td>
+                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[2].value}</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-l6li">Causa Provável:</td>
+                <td class="tg-l6li">${issue.attributes.custom_attributes[4].value}</td>
+                <td class="tg-l6li" colspan="2">Espaçamento:</td>
+                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[6].value}</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-l6li">Estado:</td>
+                <td class="tg-l6li">${issue.attributes.custom_attributes[0].value}</td>
+                <td class="tg-l6li" colspan="2">Abertura:</td>
+                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[7].value}</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0pky"></td>
+                <td class="tg-doeh" colspan="6">Observações</td>
+                <td class="tg-0pky"></td>
+            </tr>
+            <tr>
+                <td class="tg-0lax"></td>
+                <td class="tg-jpc1" colspan="6">${issue.attributes.description}</td>
+                <td class="tg-0lax"></td>
+            </tr>
+            </tbody>
+        </table>`;
+
+        html += `<table style="page-break-before: always;"></table>`;
+
+        html += `<table class="tg" style="table-layout: fixed; width: 95%">
+            <colgroup>
+                <col style="width: 36px">
+                <col style="width: 107px">
+                <col style="width: 129px">
+                <col style="width: 52px">
+                <col style="width: 35px">
+                <col style="width: 98px">
+                <col style="width: 34px">
+                <col style="width: 36px">
+            </colgroup>
+            <thead>
+            <tr>
+            <th class="tg-0pky" style="text-align:center;vertical-align:middle" colspan="2" rowspan="3"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="100%"></th>
+                <th class="tg-cudy" colspan="6">Mapeamento de Anomalias</th>
+            </tr>
+            <tr>
+                <td class="tg-hq8k" colspan="6">Nome do Projeto</td>
+            </tr>
+            <tr>
+                <td class="tg-c3ow" colspan="6">Anomalia Nº ${issue.attributes.identifier}</td>
+            </tr>
+            </thead>
+            <tbody>`;
+
+
+        axios.get(_issue.relationships.attachments.links.related, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then((attachments) => {
+            attachments.data.data.forEach(attachment => {
+                axios.get(`${attachment.attributes.url}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    responseType:"blob" 
+                })
+                .then((res) => {
+                    // var reader = new FileReader();
+                    // reader.readAsBinaryString(res.data);
+                    // let imageDataUrl = URL.createObjectURL(new Blob([res.data]))
+                    // reader.onload = function() {
+                    //   var imageDataUrl = reader.result;
+                    const b = Buffer.from([res.data])
+                    
+                    fs.writeFile('./public/teste.jpg', b, (e) => {
+                        if (e) throw e
+                    })
+                    html += `<tr>
+                        <td class="tg-0pky"></td>
+                        <td class="tg-doeh" colspan="6">
+                            <img src="${imageDataUrl}">
+                            <span>${attachment.attributes.name}</span>
+                        </td>
+                        <td class="tg-0pky"></td>
+                    </tr>`;
+                    // }
+                }).catch((error) => {
+                    console.error(error)
+                })
+            })
+        })
+
+        html += `</tbody></table>`;
+
+        count = parseInt(count) + 1;
+        if(count < issues.length){
+            html += `<table style="page-break-before: always;"></table>`;
+        }
+    })
+
+    var options = { 
+        format: 'Letter',
+        "footer": {
+            "height": "12mm",
+            "contents": {
+              default: '<div style="text-align: center"><span style="color: #444; font-size: 8px;">{{page}}/{{pages}}</span></div>', // fallback value
+            }
+          }
+    };
+    
+    pdf.create(html, options).toFile('./report.pdf', function(err, res) {
+    if (err) return console.log(err);
+        console.log(res); // { filename: '/app/businesscard.pdf' }
+    });
+
+    var file = fs.createReadStream('./report.pdf');
+    var stat = fs.statSync('./report.pdf');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=quote.pdf');
+    file.pipe(res);
 })
 
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });

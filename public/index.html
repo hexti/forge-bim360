@@ -45,6 +45,11 @@
               <button type="submit" onclick="exportXLS()" class="btn btn-success btn-search-issues" style="display: none;"><i class="fas fa-file-excel"></i></button>
             </div>
           </li>
+          <li class="dropdown">
+            <div class="navbar-form navbar-left">
+              <button type="submit" onclick="exportPDF()" class="btn btn-danger btn-search-issues" style="display: none;"><i class="fas fa-file-pdf"></i></button>
+            </div>
+          </li>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
@@ -178,12 +183,35 @@
     let containerId = url[count].substring(2);
     let urn = selected.urn;
 
-    axios.get(`/excel/xls?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
+    axios.get(`/export/xls?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
     .then((res) => {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'report.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    })
+    .catch((error) => {
+        console.error(error)
+    })
+  }
+
+  function exportPDF(){
+    let selected = getSelectedNode()
+
+    let url = selected.project.split("/");
+    let count = url.length - 1
+    let containerId = url[count].substring(2);
+    let urn = selected.urn;
+
+    axios.get(`/export/pdf?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
+    .then((res) => {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'report.pdf');
       document.body.appendChild(link);
       link.click();
       link.remove();
