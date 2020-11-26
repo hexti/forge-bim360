@@ -1,15 +1,24 @@
+require('dotenv').config()
+
 const path = require('path');
 const express = require('express');
 const cookieSession = require('cookie-session');
+const axios = require('axios');
+const bodyParser = require('body-parser')
+const qs = require('qs')
+const fs = require('fs');
 
 const PORT = process.env.PORT || 3000;
 const config = require('./config');
+
 if (config.credentials.client_id == null || config.credentials.client_secret == null) {
-    console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.');
-    return;
+    throw new TypeError('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.')
 }
 
-let app = express();
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieSession({
@@ -21,29 +30,73 @@ app.use(express.json({ limit: '50mb' }));
 app.use('/api/forge', require('./routes/oauth'));
 app.use('/api/forge', require('./routes/datamanagement'));
 app.use('/api/forge', require('./routes/user'));
-app.use((err, req, res, next) => {
-    res.status(err.statusCode).json(err);
-});
 
+app.use((_, res, next) => {
+    res.header('Access-Control-Allow-Credentials', true)
+    next()
+})
+
+// Redireciona solicitação, CORS
+app.get('/p/*', async (req, res) => {
+    try {
+        const Authorization = req.headers.authorization || ''
+        const Cookie = req.headers.cookie || ''
+        const url = req.params[0]
+        const query = qs.stringify(req.query)
+        const $jpg = /(jpe?g)$/i
+        const init = {
+            headers: { Authorization, Cookie },
+            withCredentials: true
+        }
+
+        if ($jpg.test(url)) {
+            const i = Object.assign(init, { responseType: 'arraybuffer' })
+            const ext = /(jpeg)$/i.test(url) ? 'jpeg' : 'jpg'
+            const result = await axios.get(url + '?' + query, i)
+            const time = (new Date).getTime().toString()
+            const file = `${time}.${ext}`
+
+            fs.writeFileSync(`./tmp/${file}`, result.data)
+
+            setTimeout(() => {
+                fs.unlink(`./tmp/${file}`, (err) => {
+                    if (err) {
+                        console.error('Erro ao tentar remover o arquivo: ' + file)
+                    }
+                })
+            }, 1 * 6e4)
+
+            return res.sendFile(`${__dirname}/tmp/${file}`)
+        }
+
+        const result = await axios.get(url + '?' + query, init)
+
+        res.send(result.data)
+    } catch (e) {
+        if (e.response) {
+            return res.status(e.response.status).send(e.response.data)
+        }
+
+        console.error(e)
+        res.sendStatus(500)
+    }
+})
 
 app.get('/export/xls', async (req, res) => {
-    const axios = require('axios')
-    const excel = require('node-excel-export')
-
     let token = req.query.token
     let containerId = req.query.container
     let urn = req.query.urn
     let _res = res
     const dataset = []
-    
+
     const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
-    
+
     const issues = result.data.data
-    
+
     const opt =  await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
         headers: {
             'Authorization': `Bearer ${token}`
@@ -89,13 +142,13 @@ app.get('/export/xls', async (req, res) => {
             }
         }
         };
-        
+
         //Array of objects representing heading rows (very top)
         const heading = [
         [{value: 'a1', style: styles.headerDark}, {value: 'b1', style: styles.headerDark}, {value: 'c1', style: styles.headerDark}],
         ['a2', 'b2', 'c2'] // <-- It can be only values
         ];
-        
+
         //Here you specify the export structure
         const specification = {
         issue_id: { // <- the key should match the actual data key
@@ -104,7 +157,7 @@ app.get('/export/xls', async (req, res) => {
             // cellStyle: function(value, row) { // <- style renderer function
             // // if the status is 1 then color in green else color in red
             // // Notice how we use another cell value to style the current one
-            // return (row.status_id == 1) ? styles.cellGreen : {fill: {fgColor: {rgb: 'FFFF0000'}}}; // <- Inline cell style is possible 
+            // return (row.status_id == 1) ? styles.cellGreen : {fill: {fgColor: {rgb: 'FFFF0000'}}}; // <- Inline cell style is possible
             // },
             width: 60 // <- width in pixels
         },
@@ -195,19 +248,18 @@ app.get('/export/xls', async (req, res) => {
     let _face = ''
 
     issues.forEach(issue => {
-        let _issue = issue
         lists.forEach(list => {
-            if(_issue.attributes.custom_attributes[1].id == list.id){
+            if(issue.attributes.custom_attributes[1].id == list.id){
                 list.metadata.list.options.forEach(option => {
-                    if(option.id === _issue.attributes.custom_attributes[1].value){
+                    if(option.id === issue.attributes.custom_attributes[1].value){
                         _face = option.value
                     }
                 });
             }
 
-            if(_issue.attributes.custom_attributes[5].id == list.id){
+            if(issue.attributes.custom_attributes[5].id == list.id){
                 list.metadata.list.options.forEach(option => {
-                    if(option.id === _issue.attributes.custom_attributes[1].value){
+                    if(option.id === issue.attributes.custom_attributes[1].value){
                         dimensaoVertical = option.value
                     }
                 });
@@ -215,8 +267,8 @@ app.get('/export/xls', async (req, res) => {
         })
 
         dataset.push({
-            issue_id: issue.attributes.identifier, 
-            localizacao: issue.attributes.location_description, 
+            issue_id: issue.attributes.identifier,
+            localizacao: issue.attributes.location_description,
             elemento_estrutural: issue.attributes.location_description,
             root_cause: issue.attributes.root_cause,
             face: _face,
@@ -237,7 +289,7 @@ app.get('/export/xls', async (req, res) => {
         { start: { row: 2, column: 1 }, end: { row: 2, column: 5 } },
         { start: { row: 2, column: 6 }, end: { row: 2, column: 10 } }
     ]
-    
+
     // Create the excel report.
     // This function will return Buffer
     const report = excel.buildExport(
@@ -251,257 +303,10 @@ app.get('/export/xls', async (req, res) => {
         }
     ]
     );
-    
+
     // You can then return this straight
     _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
     return _res.send(report);
-})
-
-app.get('/export/pdf', async (req, res) => {
-    var fs = require('fs');
-    var pdf = require('html-pdf');
-    const axios = require('axios');
-    var FileReader = require('filereader')
-
-    let token = req.query.token
-    let containerId = req.query.container
-    let urn = req.query.urn
-    let _res = res
-
-    const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    
-    const issues = result.data.data
-
-    const opt =  await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-
-    const lists = opt.data.results
-
-    var html = `
-    <style type="text/css">
-        .tg  {border-collapse:collapse;border-spacing:0;}
-        .tg td{border-color:inherit;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-        overflow:hidden;padding:10px 5px;word-break:normal;}
-        .tg th{border-color:inherit;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
-        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-        .tg .tg-doeh{border-color:inherit;font-size:10px;font-weight:bold;text-align:center;vertical-align:top}
-        .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
-        .tg .tg-hq8k{border-color:inherit;color:#343434;font-size:100%;text-align:center;vertical-align:middle}
-        .tg .tg-l6li{border-color:inherit;font-size:10px;text-align:left;vertical-align:top}
-        .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
-        .tg .tg-cudy{border-color:inherit;font-family:Arial, Helvetica, sans-serif !important;;font-weight:bold;text-align:center;
-        vertical-align:top}
-        .tg .tg-0lax{border-color:inherit;text-align:left;vertical-align:top}
-        .tg .tg-jpc1{border-color:inherit;font-size:10px;text-align:left;vertical-align:top}
-    </style>`;
-    let count = 0
-    issues.forEach(async issue => {
-        let _issue = issue
-        lists.forEach(list => {
-            if(_issue.attributes.custom_attributes[1].id == list.id){
-                list.metadata.list.options.forEach(option => {
-                    if(option.id === _issue.attributes.custom_attributes[1].value){
-                        _face = option.value
-                    }
-                });
-            }
-        })
-
-        html += `<table class="tg" style="table-layout: fixed; width: 95%">
-            <colgroup>
-                <col style="width: 36px">
-                <col style="width: 107px">
-                <col style="width: 129px">
-                <col style="width: 52px">
-                <col style="width: 35px">
-                <col style="width: 98px">
-                <col style="width: 34px">
-                <col style="width: 36px">
-            </colgroup>
-            <thead>
-            <tr>
-            <th class="tg-0pky" style="text-align:center;vertical-align:middle" colspan="2" rowspan="3"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="100%"></th>
-                <th class="tg-cudy" colspan="6">Mapeamento de Anomalias</th>
-            </tr>
-            <tr>
-                <td class="tg-hq8k" colspan="6">Nome do Projeto</td>
-            </tr>
-            <tr>
-                <td class="tg-c3ow" colspan="6">Anomalia Nº ${issue.attributes.identifier}</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td class="tg-0pky" colspan="8"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-doeh" colspan="6">Informações Gerais</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-l6li">Localização:</td>
-                <td class="tg-l6li">${issue.attributes.location_description}</td>
-                <td class="tg-l6li" colspan="2">Causa Raiz:</td>
-                <td class="tg-l6li" colspan="2">${issue.attributes.root_cause}</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-l6li">Elemento Estrutural:</td>
-                <td class="tg-l6li">${issue.attributes.location_description}</td>
-                <td class="tg-l6li" colspan="2">Nível de Alerta:</td>
-                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[7].value}</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky" colspan="8"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-doeh" colspan="6">Detalhes da Anomalia</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-l6li">Face:</td>
-                <td class="tg-l6li">${_face}</td>
-                <td class="tg-l6li" colspan="2">Quantidade:</td>
-                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[2].value}</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-l6li">Causa Provável:</td>
-                <td class="tg-l6li">${issue.attributes.custom_attributes[4].value}</td>
-                <td class="tg-l6li" colspan="2">Espaçamento:</td>
-                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[6].value}</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-l6li">Estado:</td>
-                <td class="tg-l6li">${issue.attributes.custom_attributes[0].value}</td>
-                <td class="tg-l6li" colspan="2">Abertura:</td>
-                <td class="tg-l6li" colspan="2">${issue.attributes.custom_attributes[7].value}</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0pky"></td>
-                <td class="tg-doeh" colspan="6">Observações</td>
-                <td class="tg-0pky"></td>
-            </tr>
-            <tr>
-                <td class="tg-0lax"></td>
-                <td class="tg-jpc1" colspan="6">${issue.attributes.description}</td>
-                <td class="tg-0lax"></td>
-            </tr>
-            </tbody>
-        </table>`;
-
-        html += `<table style="page-break-before: always;"></table>`;
-
-        html += `<table class="tg" style="table-layout: fixed; width: 95%">
-            <colgroup>
-                <col style="width: 36px">
-                <col style="width: 107px">
-                <col style="width: 129px">
-                <col style="width: 52px">
-                <col style="width: 35px">
-                <col style="width: 98px">
-                <col style="width: 34px">
-                <col style="width: 36px">
-            </colgroup>
-            <thead>
-            <tr>
-            <th class="tg-0pky" style="text-align:center;vertical-align:middle" colspan="2" rowspan="3"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="100%"></th>
-                <th class="tg-cudy" colspan="6">Mapeamento de Anomalias</th>
-            </tr>
-            <tr>
-                <td class="tg-hq8k" colspan="6">Nome do Projeto</td>
-            </tr>
-            <tr>
-                <td class="tg-c3ow" colspan="6">Anomalia Nº ${issue.attributes.identifier}</td>
-            </tr>
-            </thead>
-            <tbody>`;
-
-
-        axios.get(_issue.relationships.attachments.links.related, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        }).then((attachments) => {
-            attachments.data.data.forEach(attachment => {
-                axios.get(`${attachment.attributes.url}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    responseType:"blob" 
-                })
-                .then((res) => {
-                    // var reader = new FileReader();
-                    // reader.readAsBinaryString(res.data);
-                    // let imageDataUrl = URL.createObjectURL(new Blob([res.data]))
-                    // reader.onload = function() {
-                    //   var imageDataUrl = reader.result;
-                    const b = Buffer.from([res.data])
-                    
-                    fs.writeFile('./public/teste.jpg', b, (e) => {
-                        if (e) throw e
-                    })
-                    html += `<tr>
-                        <td class="tg-0pky"></td>
-                        <td class="tg-doeh" colspan="6">
-                            <img src="${imageDataUrl}">
-                            <span>${attachment.attributes.name}</span>
-                        </td>
-                        <td class="tg-0pky"></td>
-                    </tr>`;
-                    // }
-                }).catch((error) => {
-                    console.error(error)
-                })
-            })
-        })
-
-        html += `</tbody></table>`;
-
-        count = parseInt(count) + 1;
-        if(count < issues.length){
-            html += `<table style="page-break-before: always;"></table>`;
-        }
-    })
-
-    var options = { 
-        format: 'Letter',
-        "footer": {
-            "height": "12mm",
-            "contents": {
-              default: '<div style="text-align: center"><span style="color: #444; font-size: 8px;">{{page}}/{{pages}}</span></div>', // fallback value
-            }
-          }
-    };
-    
-    pdf.create(html, options).toFile('./report.pdf', function(err, res) {
-    if (err) return console.log(err);
-        console.log(res); // { filename: '/app/businesscard.pdf' }
-    });
-
-    var file = fs.createReadStream('./report.pdf');
-    var stat = fs.statSync('./report.pdf');
-    res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=quote.pdf');
-    file.pipe(res);
 })
 
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });

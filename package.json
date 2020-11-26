@@ -2,23 +2,28 @@
   "name": "forge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "start.js",
   "scripts": {
     "start": "node start.js",
+    "debug": "nodemon --ignore 'public/**/*' --inspect start.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "filereader": "^0.10.3",
     "forge-apis": "^0.7.3",
-    "html-pdf": "^2.2.0",
     "multer": "^1.4.2",
     "node-excel-export": "^1.4.4",
+    "qs": "^6.9.4",
     "xlsx-writestream": "^0.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
   }
 }
