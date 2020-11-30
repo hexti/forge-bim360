@@ -32,10 +32,10 @@
             <i class="fas fa-file-excel"></i>
             <span>Gerar relatório XLS</span>
           </button>
-          <button class="btn btn-danger btn-search-issues" style="display: none;" name="pdf">
-            <i class="fas fa-file-pdf"></i>
+          <button class="btn btn-primary btn-search-issues" style="display: none;" name="pdf">
+            <i class="fas fa-print"></i>
             <i class="fas fa-spinner fa-spin" style="display: none;"></i>
-            <span>Gerar relatório PDF</span>
+            <span>Imprimir relatório</span>
           </button>
         </div>
       </div><!-- /.navbar-collapse -->
@@ -198,7 +198,7 @@
     }
 
     function exportPDF () {
-      const $pdf = $(this).find('.fa-file-pdf').first()
+      const $pdf = $(this).find('.fa-print').first()
       const $spin = $(this).find('.fa-spinner').first()
 
       const selected = getSelectedNode()
