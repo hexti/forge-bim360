@@ -55,40 +55,40 @@ self.addEventListener('message', async function ({ data }) {
 
             html += `<style type="text/css">
             .tg  {border-collapse:collapse;border-spacing:0;}
-            .tg td{border-width:1px;font-family:Arial, sans-serif;font-size:12px;
+            .tg td{border-width:1px;font-family:Arial, sans-serif;font-size:10px;
               overflow:hidden;padding:10px 5px;word-break:normal;}
             .tg th{font-family:Arial, sans-serif;font-size:14px;
               font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
             .tg .tg-73oq{text-align:left;vertical-align:top}
+            .tg .tg-74oq{text-align:center;vertical-align:middle}
             .AddBorderBaixo{border-bottom: 1px solid #000;}
             .AddBorderAlto{border-top: 1px solid #000;}
             .AddBorderDireita{border-right: 1px solid #000;}
             .AddBorderEsquerda{border-left: 1px solid #000;}
+            .25{width:25px;}
+            .5{width:5px;}
             </style>
             <table class="tg" style="table-layout: fixed; width: 100%">
             <colgroup>
-            <col style="width: 25px">
-            <col style="width: 25px">
-            <col style="width: 25px">
-            <col style="width: 25px">
-            <col style="width: 5">
-            <col style="width: 25px">
-            <col style="width: 25px">
-            <col style="width: 25px">
-            <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 5px">
+                <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 25px">
+                <col style="width: 25px">
             </colgroup>
             <thead>
               <tr>
-                <th colspan="2" rowspan="2" class="tg-73oq AddBorderEsquerda AddBorderAlto AddBorderBaixo">
-                  <img src="${location.origin}/img/concremat_port340.png">
+                <th colspan="2" class="tg-74oq AddBorderEsquerda AddBorderAlto AddBorderBaixo">
+                    <img width="90%" src="${location.origin}/img/concremat_port340.png">
                 </th>
-                <th colspan="7" class="tg-73oq AddBorderDireita AddBorderAlto"></th>
-              </tr>
-              <tr>
-                <th colspan="7" class="tg-73oq AddBorderDireita AddBorderBaixo" style="float:center">
-                  <center><h2>Mapeamento de Anomalias</h2>
-                  <p>Nome do Projeto</p>
-                  <p>Anomalia Nº ${issue.attributes.identifier}</p></center>
+                <th colspan="7" class="tg-73oq AddBorderDireita AddBorderAlto" style=" text-align:center;">
+                    <label style="font-size:18pt;font-weight:900;">Mapeamento de Anomalias</label>
+                    <p>Nome do Projeto</p>
+                    <span>Anomalia Nº ${issue.attributes.identifier}</span>
                 </th>
               </tr>
             </thead>
@@ -139,41 +139,52 @@ self.addEventListener('message', async function ({ data }) {
               </tr>
               <tr>
                 <td class="AddBorderEsquerda AddBorderAlto AddBorderDireita" colspan="4" align="center"><h4>Observações</h4></td>
-                <td>${issue.attributes.description || '(sem informações)'}</td>
+                <td></td>
                 <td class="AddBorderEsquerda AddBorderAlto AddBorderDireita" colspan="4" align="center"><h4>Localização Esquemática da Anomalia </h4></td>
               </tr>
               <tr>
-                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda"></td>
+                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda">${issue.attributes.description || '(sem informações)'}</td>
                 <td class="tg-73oq"></td>
                 <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda"></td>
               </tr>
               <tr>
                 <td colspan="9"></td>
-              </tr>
-              <tr>
-                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="./foto1.jpeg" width="100%"></td>
-                <td></td>
-                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"><img src="./foto2.jpeg" width="100%"></td>
-              </tr>
-            </tbody>
-            </table>`
+              </tr>`
 
             const _attachments = await fetch('/p/' + issue.relationships.attachments.links.related, init).then(res => res.json())
 
             const attachments = _attachments.data
-
+            
+            let img = []
             for (const attachment of attachments) {
                 if ($jpg.test(attachment.attributes.url)) {
                     const image = await fetch('/p/' + attachment.attributes.url, init).then(res => res.blob())
                     const objUrl = URL.createObjectURL(image)
 
-                    html += `<table class="tg" style="table-layout: fixed; width: 100%"><tbody><tr><td class="tg-0pky"></td><td class="tg-doeh" colspan="6"><div><img src="${objUrl}" style="max-width: 100%; max-height: 40vh"></div><span>${attachment.attributes.name}</span></td><td class="tg-0pky"></td></tr></tbody></table>`
+                    // html += `<table class="tg" style="table-layout: fixed; width: 100%"><tbody><tr><td class="tg-0pky"></td><td class="tg-doeh" colspan="6"><div><img src="${objUrl}" style="max-width: 100%; max-height: 40vh"></div><span>${attachment.attributes.name}</span></td><td class="tg-0pky"></td></tr></tbody></table>`
+                    img.push({src: objUrl, name: attachment.attributes.name})
 
                     for (let i = 0; i < 1e6; i++) {
                         // Intervalo
                     }
                 }
             }
+
+            if(img.length){
+                html += `<tr>
+                            <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[0].src}" width="100%"</td>
+                            <td></td>`
+                if(img[1] && img[1].src){
+                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"><img src="${img[1].src}" width="100%"></td>
+                    </tr>`
+                }else{
+                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"></td>
+                    </tr>`
+                }
+            }
+
+            html += `</tbody>
+                    </table>`
 
             if(count < issues.length){
                 html += '<table style="page-break-before: always;"></table>'
@@ -186,7 +197,7 @@ self.addEventListener('message', async function ({ data }) {
 
         const base64 = await toBase64(fullHtml)
 
-        self.postMessage([style + html, base64])
+        self.postMessage([html, base64])
     } catch (e) {
         self.postMessage({ error: e })
     }

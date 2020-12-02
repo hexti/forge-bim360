@@ -218,7 +218,7 @@
         const page = 'relatorio-' + (new Date).getTime().toString()
         const blob = new Blob([
           `<!DOCTYPE html><html><head><meta charset="utf-8" /><title>${page}</title></head><body>`, ev.data[0], '</body></html>'
-        ])
+        ], {type: 'text/html'})
         const objUrl = URL.createObjectURL(blob)
         const frame = document.createElement('iframe')
         frame.setAttribute('src', objUrl)
