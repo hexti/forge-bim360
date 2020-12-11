@@ -171,7 +171,7 @@ self.addEventListener('message', async function ({ data }) {
                             <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[0].src}" class="col-img"></td>
                             <td></td>`
                 if(img[1] && img[1].src){
-                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"><img src="${img[1].src}" class="col-img"></td>
+                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[1].src}" class="col-img"></td>
                     </tr>`
                 }else{
                     html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"></td>
