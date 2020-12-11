@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>View Hub Models - Autodesk Forge</title>
+  <link rel="shortcut icon" href="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha512-Dop/vW3iOtayerlYAqCgkVr2aTr2ErwwTYOvRFUpzl2VhCMJyjQF0Q9TjUXIo6JhuM/3i0vVEt2e/7QQmnHQqw==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/themes/default/style.min.css" integrity="sha512-P8BwDSUInKMA7I116Z1RFg/Dfk85uFdliEUYO7vQlwtxLVMNvZimfMAQsaf++9EhlAGOVX6yhDQAIY3/70jDUg==" crossorigin="anonymous" />
+  <!-- Autodesk Forge Viewer files -->
+  <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/autodesk-forge/forge-extensions/public/extensions/IconMarkupExtension/contents/main.css">
+
+  <!-- this project files -->
+  <link href="/css/main.css" rel="stylesheet" />
+</head>
+
+<body>
+  <!-- Fixed navbar by Bootstrap: https://getbootstrap.com/examples/navbar-fixed-top/ -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="#" class="navbar-brand">
+          <img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="110">
+        </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <div class="navbar-form navbar-right">
+          <button onclick="closePanel()" class="btn btn-warning btn-search-issues" data-toggle="modal" data-target="#filterIssues" style="display: none;">
+            <i class="fas fa-filter"></i>
+          </button>
+          <button onclick="exportXLS()" class="btn btn-success btn-search-issues" style="display: none;">
+            <i class="fas fa-file-excel"></i>
+            <span>Gerar relatório XLS</span>
+          </button>
+          <button class="btn btn-primary btn-search-issues" style="display: none;" name="pdf">
+            <i class="fas fa-print"></i>
+            <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+            <span>Imprimir relatório</span>
+          </button>
+        </div>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <!-- End of navbar -->
+  <div class="container-fluid fill">
+    <div class="row fill">
+      <div class="col-sm-4 fill">
+        <div class="panel panel-default fill">
+          <div class="panel-heading" data-toggle="tooltip" style="padding: 0px;">
+            <span id="userInfo"></span>
+            <span id="refreshHubs" class="glyphicon glyphicon-refresh" style="cursor: pointer; display: none" title="Refresh list of files"></span>
+            <span id="signOut" class="glyphicon glyphicon-log-out" style="margin-top:5px;cursor: pointer; float: right; display: none" title="Sign out"> </span>
+          </div>
+          <div id="userHubs">
+            <div style="padding-top: 100px; text-align: center;">
+              <button class="btn btn-lg btn-default" id="autodeskSigninButton">
+                <img src="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/autodesk_text.png" height="20"> Sign in
+              </button>
+              <br/>
+              <br/>
+              <br/> You may also need to provision your<br/> BIM 360 Docs account for this app.<br/>
+              <a href="https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-8 fill">
+        <div id="forgeViewer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
+        </div>
+        <div class="modal-body">
+          <label>Issue</label>
+          <select class="form-control" id="issueId">
+            <option value="">Selecione ...</option>
+          </select>
+          <label>Causa Raiz</label>
+          <select class="form-control" id="causaRaiz">
+            <option value="">Selecione ...</option>
+          </select>
+          <label>Nivel de Alerta</label>
+          <select class="form-control" id="nivelAlerta">
+            <option value="" selected>Selecione ...</option>
+          </select>
+          <label>Elemento (Detalhe da Locaização)</label>
+          <select class="form-control" id="location">
+            <option value="">Selecione ...</option>
+          </select>
+          <label>Face</label>
+          <select class="form-control" id="face">
+            <option value="" selected>Selecione ...</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="pdfModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button class="btn btn-primary">Imprimir</button>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Common packages: jQuery, Bootstrap, jsTree -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha512-oBTprMeNEKCnqfuqKd6sbvFzmFQtlXS3e0C/RGFV0hD6QzhHV+ODfaQbAlmY6/q0ubbwlAM/nCJjkrgA3waLzg==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" integrity="sha512-Sr1M6mlMOXTKahO1wcUzFu/kAb3iZVaQWGvxOEePRm7c2NjGRZ7ckRT6218PaSXlz8eEoFpKkDVvl2rTqKrQLA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js" integrity="sha512-z8+IQvZEPLZTS3Dj7gklMVJfJMNbQjIQwmKMwAuX+P9KkzEmDIiXybdXsbWuoMlQ942SfyNafeu6JdOGwzCx0Q==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment-with-locales.min.js" integrity="sha512-+4wyLnVjbJnGld2sKt9RE0zwcDRmr2KimlbeYRRMZFqfKYV2o69ncGWG12VGMySqnPKZXpT8qq+p8OZJIZsTkQ==" crossorigin="anonymous"></script>
+
+  <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+  <script src="js/ForgeTree.js"></script>
+  <script src="js/ForgeViewer.js"></script>
+  <script src="js/BIM360IssueExtension.js"></script>
+  <script src="js/IconMarkupExtension.js"></script>
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+      moment.locale('pt-BR')
+      document.querySelector('button[name=pdf]')
+        .addEventListener('click', exportPDF)
+    })
+  </script>
+
+  <script type="text/javascript">
+    function closePanel(){
+      $('.docking-panel-close').click();
+    }
+
+    function showIssues(){
+      localStorage.removeItem('nivelAlerta');
+      localStorage.removeItem('causaRaiz');
+      localStorage.removeItem('issueId');
+      localStorage.removeItem('localizacao');
+      localStorage.removeItem('face');
+
+      let nivelAlerta = $('#nivelAlerta').val()
+      let causaRaiz = $('#causaRaiz').val()
+      let issueId = $('#issueId').val()
+      let localizacao = $('#location').val()
+      let face = $('#face').val()
+
+      if(!nivelAlerta && !causaRaiz && !issueId && !localStorage && !face){
+        alert('Selecione uma opção!')
+      }else{
+        localStorage.setItem('nivelAlerta', nivelAlerta)
+        localStorage.setItem('causaRaiz', causaRaiz)
+        localStorage.setItem('issueId', issueId)
+        localStorage.setItem('localizacao', localizacao)
+        localStorage.setItem('face', face)
+        $('.loadQualityIssues').click()
+      }
+    }
+
+    function exportXLS(){
+      let selected = getSelectedNode()
+
+      let url = selected.project.split("/");
+      let count = url.length - 1
+      let containerId = url[count].substring(2);
+      let urn = selected.urn;
+
+      axios.get(`/export/xls?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'report.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((error) => {
+          console.error(error)
+      })
+    }
+
+    function exportPDF () {
+      const $pdf = $(this).find('.fa-print').first()
+      const $spin = $(this).find('.fa-spinner').first()
+
+      const selected = getSelectedNode()
+      const url = selected.project.split('/');
+      const c = url.length - 1
+      const containerId = url[c].substring(2);
+      const urn = selected.urn;
+      const token = localStorage.getItem('token')
+
+      const relatorio = new Worker('./js/RelatorioPDF.js')
+
+      this.disabled = true
+      $pdf.hide()
+      $spin.show()
+
+      relatorio.addEventListener('message', (ev) => {
+        const page = 'relatorio-' + (new Date).getTime().toString()
+        const blob = new Blob([
+          `<!DOCTYPE html><html><head><meta charset="utf-8" /><title>${page}</title></head><body>`, ev.data[0], '</body></html>'
+        ], {type: 'text/html'})
+        const objUrl = URL.createObjectURL(blob)
+        const frame = document.createElement('iframe')
+        frame.setAttribute('src', objUrl)
+        frame.style.width = '100%'
+        frame.style.height = '75vh'
+
+        const $modal = $('#pdfModal')
+
+        $modal.find('.modal-body').html(frame)
+        $modal.find('.modal-header')
+          .children()
+          .first()
+          .off()
+          .click(() => {
+            frame.contentWindow.print()
+          })
+
+        $modal.modal()
+        $spin.hide()
+        $pdf.show()
+        this.disabled = false
+      })
+
+      relatorio.addEventListener('error', (ev) => {
+        console.error(ev)
+        $spin.hide()
+        $pdf.show()
+        this.disabled = false
+        alert('Ocorreu um erro ao tentar gerar um relatório')
+      })
+
+      relatorio.postMessage({ token, containerId, urn })
+    }
+  </script>
+</body>
+</html>

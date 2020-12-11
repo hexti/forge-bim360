@@ -14,13 +14,14 @@ function launchViewer(urn, viewableId) {
     let url = selected.project.split("/");
     let count = url.length - 1
     let containerId = url[count].substring(2);
-
+    
     axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     })
     .then((res) => {
+      $('.modal').modal('hide')
       let optionsNivelAlerta = '<option value="">Selecione ...</option>'
       let optionsFace = '<option value="" selected>Selecione ...</option>'
 
