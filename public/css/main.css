@@ -36,3 +36,10 @@ body {
   background-repeat: no-repeat;
   background-position: center;
 }
+
+label.markup {
+  display: inline-flex!important;
+  position: absolute;
+  white-space: nowrap;
+  cursor: pointer;
+}

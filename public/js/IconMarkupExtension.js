@@ -176,8 +176,8 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
 
             // create the label for the dbId
             const $label = $(`
-            <label class="markup update" data-id="${icon.id}" data-content="${icon.content}" style="font-size: 15px;">
-                <span class="${icon.css}"> ${icon.label || ''}</span>
+            <label class="markup update valign-wrapper" data-id="${icon.id}" data-content="${icon.content}" style="font-size: 15px;">
+                <span class="material-icons material-icons.md-18">${icon.css}</span> ${icon.label || ''}
             </label>
             `);
             
@@ -227,19 +227,22 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
     }
 
     updateIcons() {
-        for (const label of $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer .update')) {
-            const $label = $(label);
-            const id = $label.data('id');
-            
+        $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer .update').each((_, item) => {
+            const id = item.dataset.id;
+            console.log(id)
             // get the center of the dbId (based on its fragIds bounding boxes)
             //const pos = this.viewer.worldToClient(this.getModifiedWorldBoundingBox(id).center());
             const pos = this.viewer.worldToClient(this._issues[id].attributes.pushpin_attributes.location);
 
             // position the label center to it
-            $label.css('left', (Math.floor(pos.x - $label[0].offsetWidth / 2)+70) + 'px');
-            $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
-            $label.css('display', this.viewer.isNodeVisible(id) ? 'block' : 'none');
-        }
+            // $label.css('left', (Math.floor(pos.x - $label[0].offsetWidth / 2)+70) + 'px');
+            // $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
+            // $label.css('display', this.viewer.isNodeVisible(id) ? 'block' : 'none');
+
+            item.style.left = (Math.floor(pos.x - item.offsetWidth / 2)+70) + 'px'
+            item.style.top = Math.floor(pos.y - item.offsetHeight / 2) + 'px'
+            item.style.display = this.viewer.isNodeVisible(id) ? 'block' : 'none'
+        })
     }
 
     getIssues() {
@@ -286,7 +289,8 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                     }
 
                     label = '#' + issue.attributes.identifier + ' - ' + issue.attributes.root_cause
-                    this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
+                    // this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
+                    this._icons.push({dbId: 5827, label: label, css: "warning", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
                     id += 1
                 });
             }.bind(this)
