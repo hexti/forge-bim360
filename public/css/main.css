@@ -4,7 +4,8 @@ html, body{
 }
 
 .fill{
-  height: calc(100vh - 100px);
+  height: calc(100vh - 200px);
+  width: 100%;
 }
 
 body {
@@ -34,4 +35,11 @@ body {
   background-size: 24px;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+label.markup {
+  display: inline-flex!important;
+  position: absolute;
+  white-space: nowrap;
+  cursor: pointer;
 }

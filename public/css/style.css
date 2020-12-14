@@ -1,0 +1,48 @@
+.sidebar .user-info {
+    /*background: url(../img/user-img-background.jpg) no-repeat no-repeat;*/
+    background: #009688;
+}
+
+.card a:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+
+.card a:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+
+.removerDecoracao a:link {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+.info-box {
+    cursor: pointer !important;
+}
+
+a {
+    cursor: pointer !important;
+}
+
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+section.content {
+    margin: 90px 5px 0 305px;
+}
+
+body{
+    background: url(../img/bg.jpg) no-repeat;
+}
+
+.forgeViewer .adsk-viewing-viewer {
+    height: 100%!important;
+    width: 97%!important;
+}

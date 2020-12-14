@@ -14,15 +14,16 @@ function launchViewer(urn, viewableId) {
     let url = selected.project.split("/");
     let count = url.length - 1
     let containerId = url[count].substring(2);
-
+    
     axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     })
     .then((res) => {
+      $('.modal').modal('hide')
       let optionsNivelAlerta = '<option value="">Selecione ...</option>'
-      let optionsFace = '<option value="">Selecione ...</option>'
+      let optionsFace = '<option value="" selected>Selecione ...</option>'
 
       res.data.results[0].metadata.list.options.forEach(element => {
         optionsFace += `<option value="${element.id}">${element.value}</option>`
@@ -91,7 +92,7 @@ function launchViewer(urn, viewableId) {
       console.error(error)
     })
 
-    $('#btn-search-issues').show()
+    $('.btn-search-issues').show()
 
     viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'Autodesk.DocumentBrowser', 'BIM360IssueExtension', 'IconMarkupExtension'] });
     viewer.start();

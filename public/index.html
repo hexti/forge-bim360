@@ -1,169 +1,502 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
-  <title>View Hub Models - Autodesk Forge</title>
-  <meta charset="utf-8" />
-  <link rel="shortcut icon" href="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/favicon.ico">
-  <!-- Common packages: jQuery, Bootstrap, jsTree -->
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
-  <!-- Autodesk Forge Viewer files -->
-  <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
-  <link rel="stylesheet" href="http://cdn.jsdelivr.net/gh/autodesk-forge/forge-extensions/public/extensions/IconMarkupExtension/contents/main.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" />
-  <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
-  <!-- this project files -->
-  <link href="css/main.css" rel="stylesheet" />
-  <script src="js/ForgeTree.js"></script>
-  <script src="js/ForgeViewer.js"></script>
-  <script src="js/BIM360IssueExtension.js"></script>
-  <script src="js/IconMarkupExtension.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Concremat Engenharia .::. Plenus</title>
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-nav-wizard.css" rel="stylesheet">
+
+    <!-- Custom Css -->
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/css/style.css">
+
+    <link type="text/css" href="./css/style.css">
+
+    <link href="/css/main.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/css/themes/all-themes.css">
+
+    <link rel="stylesheet" href="./js/jquery-ui-1.11.4/jquery-ui.css">
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4/jquery-ui.js"></script>
+
+    <!-- Toastr notifications -->
+    <link href="./js/bower_components/toastr/toastr.css" rel="stylesheet"/>
+
+    <!-- Select2 -->
+    <link href="./js/bower_components/select2/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="/js/bower_components/select2/dist/js/select2.min.js"></script>
+
+    <!-- Folhas de Estilo para Novo Layout -->
+    <!-- Google Fonts -->
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+    <!-- Bootstrap Select Css -->
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/bootstrap-select/css/bootstrap-select.css">
+
+    <!-- Waves Effect Css -->
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/node-waves/waves.css">
+
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/sweetalert/sweetalert.css">
+
+    <!-- Animation Css -->
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/animate-css/animate.min.css">
+
+    <!-- Multi Select Css -->
+    <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/multi-select/css/multi-select.css">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/pdfmake-0.1.18/dt-1.10.13/af-2.1.3/b-1.2.4/b-colvis-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/cr-1.3.2/fc-3.2.2/fh-3.1.2/kt-2.2.0/r-2.1.0/rr-1.2.0/sc-1.4.2/se-1.2.0/datatables.min.css"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/themes/default/style.min.css" integrity="sha512-P8BwDSUInKMA7I116Z1RFg/Dfk85uFdliEUYO7vQlwtxLVMNvZimfMAQsaf++9EhlAGOVX6yhDQAIY3/70jDUg==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="//developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        .sidebar .user-info {
+            background: #2196F3
+        }
+
+        .spinner-layer {
+            border-color: #2196F3
+        }
+    </style>
 </head>
 
-<body>
-  <!-- Fixed navbar by Bootstrap: https://getbootstrap.com/examples/navbar-fixed-top/ -->
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-          <li><a href="#"><img src="https://www.concremat.com.br/wp-content/themes/concremat/images/concremat_port340.png" width="110"></a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown">
-            <div class="navbar-form navbar-left">
-              <button type="submit" id="btn-search-issues" onclick="closePanel()" class="btn btn-warning" data-toggle="modal" data-target="#filterIssues" style="display: none;"><i class="fas fa-search"></i></button>
+<body class="theme-blue">
+    <div class="page-loader-wrapper">
+        <div class="loader">
+            <div class="preloader">
+                <div class="spinner-layer">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
             </div>
-          </li>
-        </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-  </nav>
+            <p>Aguarde...</p>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="#" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
+                <a href="#" class="bars">&nbsp;</a>
+                <a class="navbar-brand logo" href="./index.html">
+                    <img width="100px" src="./img/concremat_port340.png">
+                </a>
+                <a class="navbar-brand hidden-xs" href="./index.html">
+                    SysPlenus
+                </a>
+
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                  <li class="dropdown">
+                    <a href="#" onclick="closePanel()" class="btn-search-issues" data-toggle="modal" data-target="#filterIssues" role="button" style="display: none;">
+                      <i class="material-icons">filter_alt</i>
+                    </a>
+                  </li>
+                  <li class="dropdown">
+                    <a href="#" onclick="exportXLS(this)" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                      <i class="material-icons">description</i>
+                      <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                    </a>
+                  </li>
+                  <li class="dropdown">
+                    <a name="pdf" href="#" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                      <i class="material-icons">print</i>
+                      <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                    </a>
+                  </li>
+                  <!-- <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                          <i class="material-icons">notifications</i>
+                          <span class="label-count">1</span>
+                      </a>
+                      <ul class="dropdown-menu">
+                          <li class="header">NOTIFICAÇÃO</li>
+                          <li class="body">
+                          </li>
+                          <li class="footer">
+                              <a href="#">Visualiazar Todas as Notificações</a>
+                          </li>
+                      </ul>
+                  </li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
   
-  <!-- End of navbar -->
-  <div class="container-fluid fill">
-    <div class="row fill">
-      <div class="col-sm-4 fill">
-        <div class="panel panel-default fill">
-          <div class="panel-heading" data-toggle="tooltip" style="padding: 0px;">
-            <span id="userInfo"></span>
-            <span id="refreshHubs" class="glyphicon glyphicon-refresh" style="cursor: pointer; display: none" title="Refresh list of files"></span>
-            <span id="signOut" class="glyphicon glyphicon-log-out" style="margin-top:5px;cursor: pointer; float: right; display: none" title="Sign out"> </span>
-          </div>
-          <div id="userHubs">
-            <div style="padding-top: 100px; text-align: center;">
-              <button class="btn btn-lg btn-default" id="autodeskSigninButton">
-                <img src="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/autodesk_text.png"
-                  height="20"> Sign in
-              </button>
-              <br/>
-              <br/>
-              <br/> You may also need to provision your<br/> BIM 360 Docs account for this app.<br/>
-              <a href="https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
+    <section>
+        <!-- Left Sidebar -->
+        <aside id="leftsidebar" class="sidebar">
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="image">
+                    <!-- <img src="" width="48" height="48" alt="User" /> -->
+                </div>
+                <div class="info-container">
+                    <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Anderson Freitas
+                    </div>
+                    <div class="email">
+                        anderson.freitas@concremat.com.br
+                    </div>
+    
+                    <form action="#" method="post" name="logout">
+                        <input type="hidden" name="intent" value="<?=uri()?>">
+                        <div class="btn-group user-helper-dropdown">
+                            <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">keyboard_arrow_down</i>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#"><i class="material-icons">persona</i>Perfil</a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="material-icons">vpn_key</i>Trocar Senha</a>
+                                </li>
+                                <li role="seperator" class="divider"></li>
+                                <li>
+                                    <a href="#"><i class="material-icons">input</i>Sair</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- #User Info -->
+            <!-- Menu -->
+            <div class="menu">
+                <ul class="list">
+                    <li class="header">Menu Principal</li>
+                    <li>
+                        <a href="/">
+                            <i class="material-icons">home</i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+    
+                    <li>
+                      <a href="#" data-toggle="modal" data-target="#listHub">
+                        <i class="material-icons">folder</i>
+                          <span>Modelos - BIM360</span>
+                      </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- #Menu -->
+    
+            <!-- Footer -->
+            <div class="legal">
+                <div class="copyright">
+                    <p>
+                        <a href="#">Problemas ao utilizar o sistema?</a>
+                    </p>
+                </div>
+                <div class="copyright">
+                    &copy; 2017 - <?=date('Y')?>
+                    <a target="_blank" href="//www.concremat.com.br">Concremat Engenharia.<br>
+                        <img width="30%" src="./img/concremat_port340.png"></a>
+                </div>
+            </div>
+            <!-- #Footer -->
+        </aside>
+    
+        <!-- #END# Left Sidebar -->
+    </section>
+
+    <section class="content" style="margin-top: 40px;">
+      <div class="container-fluid fill">
+        <div class="card">
+          <div class="body">
+            <div class="row clearfix fill">
+              <div class="col-sm-12 col-md-12 col-lg-12 fill">
+                  <div id="forgeViewer"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-sm-8 fill">
-        <div id="forgeViewer"></div>
+    </section>
+
+    <div class="modal fade" id="listHub">
+      <div class="modal-dialog wide">
+        <div class="modal-content">
+          <div class="modal-body" style="height: 100%;">
+            <div id="userHubs">
+              <div style="padding-top: 100px; text-align: center;">
+                <button class="btn btn-lg btn-default" id="autodeskSigninButton">
+                  <img src="//github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/autodesk_text.png" height="20"> Sign in
+                </button>
+                <br/>
+                <br/>
+                <br/> You may also need to provision your<br/> BIM 360 Docs account for this app.<br/>
+                <a href="//forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
-    Launch demo modal
-  </button>
+    <div class="modal fade" id="pdfModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="btn btn-primary">Imprimir</button>
+                    <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body"></div>
+                </div>
+        </div>
+    </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
+          </div>
+          <div class="modal-body">
+            <label>Issue</label>
+            <select class="form-control" id="issueId">
+              <option value="">Selecione ...</option>
+            </select>
+            <label>Causa Raiz</label>
+            <select class="form-control" id="causaRaiz">
+              <option value="">Selecione ...</option>
+            </select>
+            <label>Nivel de Alerta</label>
+            <select class="form-control" id="nivelAlerta">
+              <option value="" selected>Selecione ...</option>
+            </select>
+            <label>Elemento (Detalhe da Locaização)</label>
+            <select class="form-control" id="location">
+              <option value="">Selecione ...</option>
+            </select>
+            <label>Face</label>
+            <select class="form-control" id="face">
+              <option value="" selected>Selecione ...</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
+            <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
+        <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
-          </button>
+            </button>
         </div>
         <div class="modal-body" id="img">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
         </div>
-      </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
-        </div>
-        <div class="modal-body">
-          <label>Issue</label>
-          <select class="form-control" id="issueId">
-            <option value="">Selecione ...</option>
-          </select>
-          <label>Causa Raiz</label>
-          <select class="form-control" id="causaRaiz">
-            <option value="">Selecione ...</option>
-          </select>
-          <label>Nivel de Alerta</label>
-          <select class="form-control" id="nivelAlerta">
-            <option value="">Selecione ...</option>
-          </select>
-          <label>Elemento (Detalhe da Locaização)</label>
-          <select class="form-control" id="location">
-            <option value="">Selecione ...</option>
-          </select>
-          <label>Face</label>
-          <select class="form-control" id="face">
-            <option value="">Selecione ...</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal" onClick="showIssues()">Filtrar</button>
-          <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
-        </div>
-      </div>
     </div>
-  </div>
-</body>
-<script>
-  function closePanel(){
-    $('.docking-panel-close').click();
-  }
 
-  function showIssues(){
-    localStorage.removeItem('nivelAlerta');
-    localStorage.removeItem('causaRaiz');
-    localStorage.removeItem('issueId');
-    localStorage.removeItem('localizacao');
-    localStorage.removeItem('face');
-    
-    let nivelAlerta = $('#nivelAlerta').val()
-    let causaRaiz = $('#causaRaiz').val()
-    let issueId = $('#issueId').val()
-    let localizacao = $('#localizacao').val()
-    let face = $('#face').val()
-    
-    if(!nivelAlerta && !causaRaiz && !issueId){
-      alert('Selecione uma opção!')
-    }else{
-      localStorage.setItem('nivelAlerta', nivelAlerta)
-      localStorage.setItem('causaRaiz', causaRaiz)
-      localStorage.setItem('issueId', issueId)
-      localStorage.setItem('localizacao', localizacao)
-      localStorage.setItem('face', face)
-      $('.loadQualityIssues').click()
+    <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
+    Launch demo modal
+    </button>
+
+  <!-- Bootstrap Core Js -->
+  <script type="text/javascript" src="./lib/adminbsb-materialdesign/plugins/bootstrap/js/bootstrap.min.js"></script>
+
+  <!-- Slimscroll Plugin Js -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js" integrity="sha512-cJMgI2OtiquRH4L9u+WQW+mz828vmdp9ljOcm/vKTQ7+ydQUktrPVewlykMgozPP+NUBbHdeifE6iJ6UVjNw5Q==" crossorigin="anonymous"></script>
+
+  <!-- Waves Effect Plugin Js -->
+  <script type="text/javascript" src="./lib/adminbsb-materialdesign/plugins/node-waves/waves.js"></script>
+
+
+  <!-- Jquery CountTo Plugin Js -->
+
+  <!-- DateTimePicker -->
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" integrity="sha512-Sr1M6mlMOXTKahO1wcUzFu/kAb3iZVaQWGvxOEePRm7c2NjGRZ7ckRT6218PaSXlz8eEoFpKkDVvl2rTqKrQLA==" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js" integrity="sha512-z8+IQvZEPLZTS3Dj7gklMVJfJMNbQjIQwmKMwAuX+P9KkzEmDIiXybdXsbWuoMlQ942SfyNafeu6JdOGwzCx0Q==" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment-with-locales.min.js" integrity="sha512-+4wyLnVjbJnGld2sKt9RE0zwcDRmr2KimlbeYRRMZFqfKYV2o69ncGWG12VGMySqnPKZXpT8qq+p8OZJIZsTkQ==" crossorigin="anonymous"></script>
+
+  <script src="//developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+  <script src="/js/ForgeTree.js"></script>
+  <script src="/js/ForgeViewer.js"></script>
+  <script src="/js/BIM360IssueExtension.js"></script>
+  <script src="/js/IconMarkupExtension.js"></script>
+
+  <script>
+    $('select').select2({width: '100%', dropdownParent: $('#filterIssues')})
+      $(function () {
+          const url = location.origin + location.pathname
+
+          $(`ul.list li a[href='${url}']`).addClass('toggled')
+              .parents('li')
+              .addClass('active')
+
+          $('form[name=logout]').find('a').last().click(function () {
+              $('form[name=logout]').submit()
+          })
+      })
+  </script>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+      moment.locale('pt-BR')
+      document.querySelector('a[name=pdf]')
+        .addEventListener('click', exportPDF)
+    })
+  </script>
+
+  <script type="text/javascript">
+    function closePanel(){
+      $('.docking-panel-close').click();
     }
-  }
-</script>
-<iframe id="hiddenFrame" style="visibility: hidden; display:none" />
+
+    function showIssues(){
+      localStorage.removeItem('nivelAlerta');
+      localStorage.removeItem('causaRaiz');
+      localStorage.removeItem('issueId');
+      localStorage.removeItem('localizacao');
+      localStorage.removeItem('face');
+
+      let nivelAlerta = $('#nivelAlerta').val()
+      let causaRaiz = $('#causaRaiz').val()
+      let issueId = $('#issueId').val()
+      let localizacao = $('#location').val()
+      let face = $('#face').val()
+
+      if(!nivelAlerta && !causaRaiz && !issueId && !localStorage && !face){
+        alert('Selecione uma opção!')
+      }else{
+        localStorage.setItem('nivelAlerta', nivelAlerta)
+        localStorage.setItem('causaRaiz', causaRaiz)
+        localStorage.setItem('issueId', issueId)
+        localStorage.setItem('localizacao', localizacao)
+        localStorage.setItem('face', face)
+        $('.loadQualityIssues').click()
+      }
+    }
+
+    function exportXLS(_this){
+      const $pdf = $(_this).find('.material-icons').first()
+      const $spin = $(_this).find('.fa-spinner').first()
+
+      let selected = getSelectedNode()
+
+      let url = selected.project.split("/");
+      let count = url.length - 1
+      let containerId = url[count].substring(2);
+      let urn = selected.urn;
+
+      $pdf.hide()
+      $spin.show()
+
+      axios.get(`/export/xls?token=${localStorage.getItem('token')}&container=${containerId}&urn=${urn}`, {responseType: 'blob'})
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'report.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+      .finally(() => {
+        $spin.hide()
+        $pdf.show()
+      })
+    }
+
+    function exportPDF () {
+      const $pdf = $(this).find('.material-icons').first()
+      const $spin = $(this).find('.fa-spinner').first()
+
+      const selected = getSelectedNode()
+      const url = selected.project.split('/');
+      const c = url.length - 1
+      const containerId = url[c].substring(2);
+      const urn = selected.urn;
+      const token = localStorage.getItem('token')
+
+      const relatorio = new Worker('./js/RelatorioPDF.js')
+
+      this.disabled = true
+      $pdf.hide()
+      $spin.show()
+
+      relatorio.addEventListener('message', (ev) => {
+        const page = 'relatorio-' + (new Date).getTime().toString()
+        const blob = new Blob([
+          `<!DOCTYPE html><html><head><meta charset="utf-8" /><title>${page}</title></head><body>`, ev.data[0], '</body></html>'
+        ], {type: 'text/html'})
+        const objUrl = URL.createObjectURL(blob)
+        const frame = document.createElement('iframe')
+        frame.setAttribute('src', objUrl)
+        frame.style.width = '100%'
+        frame.style.height = '75vh'
+
+        const $modal = $('#pdfModal')
+
+        $modal.find('.modal-body').html(frame)
+        $modal.find('.modal-header')
+          .children()
+          .first()
+          .off()
+          .click(() => {
+            frame.contentWindow.print()
+          })
+
+        $modal.modal()
+        $spin.hide()
+        $pdf.show()
+        this.disabled = false
+      })
+
+      relatorio.addEventListener('error', (ev) => {
+        console.error(ev)
+        $spin.hide()
+        $pdf.show()
+        this.disabled = false
+        alert('Ocorreu um erro ao tentar gerar um relatório')
+      })
+
+      relatorio.postMessage({ token, containerId, urn })
+    }
+  </script>
+
+  <script src="./lib/adminbsb-materialdesign/js/admin.js"></script>
+
+  </body>
 </html>
