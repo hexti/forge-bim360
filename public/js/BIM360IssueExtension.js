@@ -384,11 +384,11 @@ BIM360IssueExtension.prototype.getIssues = function (accountId, containerId, urn
         _this.issues = all_issues
       }
 
-      localStorage.removeItem('nivelAlerta');
-      localStorage.removeItem('causaRaiz');
-      localStorage.removeItem('issueId');
-      localStorage.removeItem('face');
-      localStorage.removeItem('localizacao');
+      // localStorage.removeItem('nivelAlerta');
+      // localStorage.removeItem('causaRaiz');
+      // localStorage.removeItem('issueId');
+      // localStorage.removeItem('face');
+      // localStorage.removeItem('localizacao');
 
       // do we have issues on this document?
       var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
