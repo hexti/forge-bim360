@@ -27,6 +27,8 @@ self.addEventListener('message', async function ({ data }) {
 
         let html = ''
 
+        const fileInformation = await fetch(`/p/https://developer.api.autodesk.com/data/v1/projects/b.${containerId}/items/${urn}`, init).then(res => res.json())
+
         const _issues = await fetch(`/p/https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, init).then(res => res.json())
 
         const issues = _issues.data
@@ -84,7 +86,7 @@ self.addEventListener('message', async function ({ data }) {
                 </th>
                 <th colspan="7" class="tg-73oq AddBorderDireita AddBorderAlto" style=" text-align:center;">
                     <label style="font-size:18pt;font-weight:900;">Mapeamento de Anomalias</label>
-                    <p>Nome do Projeto</p>
+                    <p>${fileInformation.data.attributes.displayName.split(".")[0]}</p>
                     <span>Anomalia Nº ${issue.attributes.identifier}</span>
                 </th>
               </tr>
@@ -168,10 +170,10 @@ self.addEventListener('message', async function ({ data }) {
 
             if(img.length){
                 html += `<tr>
-                            <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[0].src}" class="col-img"></td>
+                            <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[0].src}" class="col-img"><p>${img[0].name}</p></td>
                             <td></td>`
                 if(img[1] && img[1].src){
-                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[1].src}" class="col-img"></td>
+                    html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[1].src}" class="col-img"><p>${img[0].name}</p></td>
                     </tr>`
                 }else{
                     html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"></td>
