@@ -65,7 +65,7 @@ BIM360IssueExtension.prototype.createUI = function () {
   {
     var loadQualityIssues = new Autodesk.Viewing.UI.Button('loadQualityIssues');
     loadQualityIssues.onClick = function (e) {
-      
+
       // check if the panel is created or not
       if (_this.panel == null) {
         _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
@@ -127,7 +127,7 @@ BIM360IssueExtension.prototype.createIssue = function () {
       //from viewer 7.0, it looks the default id for new item is not 0 anymore
       //var issue = pushPinExtension.getItemById('0');
       //we seem to have to get it from the first item of pushpin list, which is always the latest new one
-   var issue = pushPinExtension.getItemById(pushPinExtension.pushPinManager.pushPinList[0].itemData.id ); 
+   var issue = pushPinExtension.getItemById(pushPinExtension.pushPinManager.pushPinList[0].itemData.id );
     if (issue === null) return; // safeguard
     var data = {
       type: 'quality_issues',//issue.type,
@@ -212,7 +212,7 @@ BIM360IssueExtension.prototype.loadIssues = function (containerId, urn) {
 
   //probably it is unneccesary to get container id and urn again
   //because Pushpin initialization has done.
-  //but still keep these line 
+  //but still keep these line
   var _this = this;
   var selected = getSelectedNode();
 
@@ -226,7 +226,7 @@ BIM360IssueExtension.prototype.getContainerId = function (href, urn, cb) {
   var selected = getSelectedNode();
   if (_this.panel) {
     _this.panel.removeAllProperties();
-    _this.panel.addProperty('Loading...', '');
+    _this.panel.addProperty('Carregando...', '');
   }
 
   let url = selected.project.split("/");
@@ -239,7 +239,7 @@ BIM360IssueExtension.prototype.getContainerId = function (href, urn, cb) {
 BIM360IssueExtension.prototype.getIssues = async function (accountId, containerId, urn) {
   var _this = this;
   _this.issues = []
-  
+
   _this.issues = await getAllIssues()
 //  _this.issues = x({filtros, validacao, nivelAlerta, face, localizacao}, getSelectedNode)
 
@@ -267,7 +267,7 @@ BIM360IssueExtension.prototype.getIssues = async function (accountId, containerI
 
 BIM360IssueExtension.prototype.showIssues = async function () {
   var _this = this;
-  
+
   //remove the list of last time
   var pushPinExtension = _this.viewer.getExtension(_this.pushPinExtensionName);
   pushPinExtension.removeAllItems();
@@ -337,10 +337,10 @@ BIM360IssueExtension.prototype.showIssues = async function () {
     // add the pushpin
     var issueAttributes = issue.attributes;
     var pushpinAttributes = issue.attributes.pushpin_attributes;
-    
+
     if (pushpinAttributes) {
         issue.type = issue.type.replace('quality_', ''); // temp fix during issues > quality_issues migration
-        
+
         pushpinDataArray.push({
             id: issue.id,
             label: 'Problema #' + issueAttributes.identifier + ' - ' + issueAttributes.root_cause,
@@ -350,9 +350,9 @@ BIM360IssueExtension.prototype.showIssues = async function () {
             objectId: pushpinAttributes.object_id,
             viewerState: pushpinAttributes.viewer_state
         });
-      } 
+      }
     }
-  
+
   pushPinExtension.loadItems(pushpinDataArray);
 }
 
@@ -426,14 +426,14 @@ function getAnexos(url){
           headers: {
               'Authorization': `Bearer ${token}`
           },
-          responseType:"blob" 
+          responseType:"blob"
       })
       .then((res) => {
           var reader = new window.FileReader();
-          reader.readAsDataURL(res.data); 
+          reader.readAsDataURL(res.data);
           reader.onload = function() {
             var imageDataUrl = reader.result;
-            var divNova = document.createElement("div"); 
+            var divNova = document.createElement("div");
             imageEl.setAttribute("src", imageDataUrl);
             imageEl.setAttribute("class", "img-thumbnail");
             divNova.appendChild(imageEl)
