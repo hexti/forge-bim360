@@ -1,6 +1,6 @@
 self.addEventListener('message', async function ({ data }) {
     try {
-        const { token, containerId, urn } = data
+        const { token, containerId, urn, localizacaoEsquematica } = data
         const toBase64 = (data) => new Promise((resolve, reject) => {
             const reader = new FileReader
 
@@ -144,11 +144,19 @@ self.addEventListener('message', async function ({ data }) {
               <tr>
                 <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda">${issue.attributes.description || '(sem informações)'}</td>
                 <td class="tg-73oq"></td>
-                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda" align="center"></td>
-              </tr>
-              <tr>
-                <td colspan="9"></td>
-              </tr>`
+                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda" align="center">
+            `
+
+            if (localizacaoEsquematica) {
+                html += `<img src="${localizacaoEsquematica}" class="col-img">`
+            }
+
+            html += `
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="9"></td>
+                </tr>`
 
             const _attachments = await fetch('/p/' + issue.relationships.attachments.links.related, init).then(res => res.json())
 

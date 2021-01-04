@@ -66,6 +66,8 @@
     <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <link rel="stylesheet" href="./css/toast.css">
+
     <style>
         .sidebar .user-info {
             background: #2196F3
@@ -105,19 +107,25 @@
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
-                  <li class="dropdown">
+                  <li>
                     <a href="#" onclick="closePanel()" class="btn-search-issues" data-toggle="modal" data-target="#filterIssues" role="button" style="display: none;">
                       <i class="material-icons">filter_alt</i>
                     </a>
                   </li>
-                  <li class="dropdown">
-                    <a href="#" onclick="exportXLS(this)" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                  <li>
+                    <a href="#" onclick="exportXLS(this)" class="btn-search-issues" data-toggle="modal" role="button" style="display: none;">
                       <i class="material-icons">description</i>
                       <i class="fas fa-spinner fa-spin" style="display: none;"></i>
                     </a>
                   </li>
-                  <li class="dropdown">
-                    <a name="pdf" href="#" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                  <li>
+                    <a name="screenshot" href="#" class="btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                      <i class="material-icons">camera_alt</i>
+                      <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a name="pdf" href="#" class="btn-search-issues" data-toggle="modal" role="button" style="display: none;">
                       <i class="material-icons">print</i>
                       <i class="fas fa-spinner fa-spin" style="display: none;"></i>
                     </a>
@@ -140,7 +148,7 @@
             </div>
         </div>
     </nav>
-  
+
     <section>
         <!-- Left Sidebar -->
         <aside id="leftsidebar" class="sidebar">
@@ -156,7 +164,7 @@
                     <div class="email">
                         anderson.freitas@concremat.com.br
                     </div>
-    
+
                     <form action="#" method="post" name="logout">
                         <input type="hidden" name="intent" value="#">
                         <div class="btn-group user-helper-dropdown">
@@ -188,7 +196,7 @@
                             <span>Início</span>
                         </a>
                     </li>
-    
+
                     <li>
                       <a href="#" data-toggle="modal" data-target="#listHub">
                         <i class="material-icons">folder</i>
@@ -198,7 +206,7 @@
                 </ul>
             </div>
             <!-- #Menu -->
-    
+
             <!-- Footer -->
             <!-- <div class="legal">
                 <div class="copyright">
@@ -214,7 +222,7 @@
             </div> -->
             <!-- #Footer -->
         </aside>
-    
+
         <!-- #END# Left Sidebar -->
     </section>
 
@@ -303,21 +311,21 @@
     </div>
 
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body" id="img">
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
-        </div>
-    </div>
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+          <div class="modal-header">
+              <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body" id="img">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </div>
+          </div>
+      </div>
     </div>
 
     <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
@@ -365,15 +373,39 @@
       })
   </script>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
       moment.locale('pt-BR')
       document.querySelector('a[name=pdf]')
         .addEventListener('click', exportPDF)
+      document.querySelector('a[name=screenshot]')
+        .addEventListener('click', screenshot)
     })
   </script>
 
   <script type="text/javascript">
+    var localizacaoEsquematica;
+
+    function screenshot() {
+      const $camera = $(this).find('.material-icons').first()
+      const $spin = $(this).find('.fa-spinner').first()
+
+      this.style.pointerEvents = 'none'
+
+      $camera.hide()
+      $spin.show()
+
+      // Get the full image
+      viewer.impl.getScreenShotProgressive(viewer.container.clientWidth, viewer.container.clientHeight, (blobURL) => {
+        localizacaoEsquematica = blobURL
+        $.fn.toast(`<img src="${blobURL}" width="100%">`)
+        $spin.hide()
+        $camera.show()
+
+        this.style.pointerEvents = null
+      });
+    }
+
     function closePanel(){
       $('.docking-panel-close').click();
     }
@@ -449,7 +481,8 @@
 
       const relatorio = new Worker('./js/RelatorioPDF.js')
 
-      this.disabled = true
+      this.style.pointerEvents = 'none'
+
       $pdf.hide()
       $spin.show()
 
@@ -478,18 +511,20 @@
         $modal.modal()
         $spin.hide()
         $pdf.show()
-        this.disabled = false
+
+        this.style.pointerEvents = 'none'
       })
 
       relatorio.addEventListener('error', (ev) => {
         console.error(ev)
         $spin.hide()
         $pdf.show()
-        this.disabled = false
+
+        this.style.pointerEvents = 'none'
         alert('Ocorreu um erro ao tentar gerar um relatório')
       })
 
-      relatorio.postMessage({ token, containerId, urn })
+      relatorio.postMessage({ token, containerId, urn, localizacaoEsquematica })
     }
 
     localStorage.removeItem('nivelAlerta');
@@ -500,6 +535,7 @@
   </script>
 
   <script src="./lib/adminbsb-materialdesign/js/admin.js"></script>
+  <script src="./js/toast.js"></script>
 
   </body>
 </html>
