@@ -265,7 +265,7 @@ BIM360IssueExtension.prototype.getIssues = async function (accountId, containerI
 
 }
 
-BIM360IssueExtension.prototype.showIssues = function () {
+BIM360IssueExtension.prototype.showIssues = async function () {
   var _this = this;
   
   //remove the list of last time
@@ -289,7 +289,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
       return 0;
     });
 
-  _this.issues.forEach(function (issue) {
+  for(const issue of _this.issues) {
     let sortIssue = issue.attributes.custom_attributes
 
     sortIssue.sort(function (a, b) {
@@ -315,29 +315,23 @@ BIM360IssueExtension.prototype.showIssues = function () {
         _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
       }
 
-      sortIssue.forEach(attribute => {
+      for (const attribute of sortIssue) {
         if(attribute.type === 'list'){
-          
-          axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${_this.containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
+          let a = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${_this.containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
               headers: {
                   'Authorization': `Bearer ${token}`
               }
           })
-          .then((res) => {
-            let options = res.data.results[0].metadata.list.options
-            options.forEach(option => {
-              if(option.id === attribute.value){
-                _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
-              }
-            });
-          })
-          .catch((error) => {
-              console.error(error)
-          })
+          let options = a.data.results[0].metadata.list.options
+          options.forEach(option => {
+            if(option.id === attribute.value){
+              _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+            }
+          });
         }else{
           _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
         }
-      });
+      }
     }
 
     // add the pushpin
@@ -357,7 +351,7 @@ BIM360IssueExtension.prototype.showIssues = function () {
             viewerState: pushpinAttributes.viewer_state
         });
       } 
-    })
+    }
   
   pushPinExtension.loadItems(pushpinDataArray);
 }

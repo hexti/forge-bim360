@@ -100,7 +100,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         if (tree === undefined) { console.log('Loading tree...'); return; }
         
         _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
-        const onClick = (e) => {
+        const onClick = async (e) => {
             _this.viewer.select($(e.currentTarget).data('id'));
             _this.viewer.utilities.fitToView();
 
@@ -124,9 +124,9 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                 error: function(XMLHttpRequest, textStatus, errorThrown){
                   alert('Sem resultado de issue para essa consulta');
                 },
-                success: function(data){
+                done: async function(data){
                     let issue = data.data
-                    console.log(issue)
+                    
                     var dateCreated = moment(issue.attributes.created_at);
 
                     if (_this.panel) _this.panel.removeAllProperties();
@@ -141,30 +141,36 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                         let url = issue.relationships.attachments.links.related.replace('//', '@')
                         _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
                     }
+
+                    let sortIssue = issue.attributes.custom_attributes
+
+                    sortIssue.sort(function (a, b) {
+                    if (a.title > b.title) {
+                        return 1;
+                    }
+                    if (a.title < b.title) {
+                        return -1;
+                    }
+                    return 0;
+                    });
                   
-                    issue.attributes.custom_attributes.forEach(attribute => {
+                    for (const attribute of sortIssue) {
                         if(attribute.type === 'list'){
                         
-                        axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
-                            headers: {
-                                'Authorization': `Bearer ${_this.token}`
-                            }
-                        })
-                        .then((res) => {
+                            let a = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
+                                headers: {'Authorization': `Bearer ${_this.token}`}
+                            })
+
                             let options = res.data.results[0].metadata.list.options
                             options.forEach(option => {
-                            if(option.id === attribute.value){
-                                _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
-                            }
+                                if(option.id === attribute.value){
+                                    _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+                                }
                             });
-                        })
-                        .catch((error) => {
-                            console.error(error)
-                        })
                         }else{
                             _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
                         }
-                  });
+                    }
                 }
             });
         };
