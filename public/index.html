@@ -268,11 +268,11 @@
         </div>
     </div>
 
-    <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
+            <h3 class="modal-title text-bold">Filtro de Anomalias</h3>
           </div>
           <div class="modal-body">
             <label>Issue</label>
@@ -304,11 +304,11 @@
       </div>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog" role="document">
           <div class="modal-content">
           <div class="modal-header">
-              <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
+              <h3 class="modal-title text-bold">Anexos da Anomalia</h3>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
               </button>
@@ -321,10 +321,6 @@
           </div>
       </div>
     </div>
-
-    <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
-    Launch demo modal
-    </button>
 
   <!-- Bootstrap Core Js -->
   <script type="text/javascript" src="./lib/adminbsb-materialdesign/plugins/bootstrap/js/bootstrap.min.js"></script>
@@ -373,26 +369,6 @@
   </script>
 
   <script type="text/javascript">
-    function screenshot() {
-      const $camera = $(this).find('.material-icons').first()
-      const $spin = $(this).find('.fa-spinner').first()
-
-      this.style.pointerEvents = 'none'
-
-      $camera.hide()
-      $spin.show()
-
-      // Get the full image
-      viewer.impl.getScreenShotProgressive(viewer.container.clientWidth, viewer.container.clientHeight, (blobURL) => {
-        localizacaoEsquematica = blobURL
-        $.fn.toast(`<img src="${blobURL}" width="100%">`)
-        $spin.hide()
-        $camera.show()
-
-        this.style.pointerEvents = null
-      })
-    }
-
     function closePanel(){
       $('.docking-panel-close').click();
     }
