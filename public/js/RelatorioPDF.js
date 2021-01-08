@@ -13,7 +13,20 @@ async function gerarRelatorioPDF (containerId, urn) {
         reader.readAsDataURL(new Blob([data]))
     })
 
+    const overlay = document.createElement('div')
+    const view = document.querySelector('#forgeViewer')
+    const viewcube = document.querySelector('.viewcubeWrapper')
+    const toolbar = document.querySelector('#guiviewer3d-toolbar')
     const $jpg = /(jpe?g)$/i
+
+    overlay.style.position = 'absolute'
+    overlay.style.top = 0
+    overlay.style.left = 0
+    overlay.style.width = '100%'
+    overlay.style.height = '100%'
+    overlay.style.zIndex = 100
+
+    view.appendChild(overlay)
 
     let html = `<style type="text/css">
         .tg  {border-collapse:collapse;border-spacing:0;}
@@ -41,6 +54,9 @@ async function gerarRelatorioPDF (containerId, urn) {
 
         const lists = _lists.data.results
         let count = 0
+
+        viewcube.classList.add('hide')
+        toolbar.classList.add('hide')
 
         for (const issue of issues) {
             let _face = ''
@@ -136,19 +152,37 @@ async function gerarRelatorioPDF (containerId, urn) {
                 <td class="tg-73oq"></td>
                 <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda" align="center">`
 
-            const viewport = issue.attributes.pushpin_attributes.viewer_state.viewport
+            const { viewport } = issue.attributes.pushpin_attributes.viewer_state
 
-            viewer.restoreState({ viewport }, null, true)
+            viewport.eye[0] -= 50
+            viewport.target[0] -= 50
 
-            const { clientWidth, clientHeight } = viewer.container
+            $('#issueId').val(issue.id)
 
-            const promisify = () => new Promise((resolve) => {
-                viewer.getScreenShot(clientWidth, clientHeight, resolve)
+            const _showIssues = promisify(showIssues)
+            const _closePanel = promisify(closePanel)
+
+            const restoreState = () => new Promise((resolve, reject) => {
+                if (viewer.restoreState({ viewport }, null, true))
+                    resolve()
+                else
+                    reject()
             })
 
-            const imageUrl = await promisify()
+            const screenCanvas = () => new Promise((resolve) => {
+                html2canvas(view).then(resolve)
+            })
+
+            await _showIssues()
+            await _closePanel()
+            await idle(1)
+            await restoreState()
+            await idle(0.5)
+
+            const imgData = (await screenCanvas()).toDataURL()
+
             html += `
-                            <img src="${imageUrl}" class="col-img">
+                            <img src="${imgData}" class="col-img">
                         </td>
                     </tr>
                     <tr>
@@ -167,7 +201,7 @@ async function gerarRelatorioPDF (containerId, urn) {
 
                     img.push({src: objUrl, name: attachment.attributes.name})
 
-                    aguardar()
+                    await idle()
                 }
             }
 
@@ -199,5 +233,9 @@ async function gerarRelatorioPDF (containerId, urn) {
         return Promise.resolve([html, base64])
     } catch (e) {
         return Promise.reject(e)
+    } finally {
+        view.removeChild(overlay)
+        viewcube.classList.remove('hide')
+        toolbar.classList.remove('hide')
     }
 }

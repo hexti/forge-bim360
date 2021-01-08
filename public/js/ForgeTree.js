@@ -60,7 +60,7 @@ function prepareUserHubsTree() {
       'personalHub': { 'icon': 'https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/a360hub.png' },
       'bim360Hubs': { 'icon': 'https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/bim360hub.png' },
       'bim360projects': { 'icon': 'https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/bim360project.png' },
-      'a360projects': { 'icon': 'https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/a360project.png' },      
+      'a360projects': { 'icon': 'https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/a360project.png' },
       'folders': { 'icon': 'glyphicon glyphicon-folder-open' },
       'items': { 'icon': 'glyphicon glyphicon-file' },
       'bim360documents': { 'icon': 'glyphicon glyphicon-file' },
@@ -81,19 +81,22 @@ function prepareUserHubsTree() {
     },
     "plugins": ["types", "state", "sort"],
     "state": { "key": "autodeskHubs" }// key restore tree state
-  }).bind("activate_node.jstree", function (evt, data) {
-    if (data != null && data.node != null && (data.node.type == 'versions' || data.node.type == 'bim360documents')) {
-      // in case the node.id contains a | then split into URN & viewableId
-      if (data.node.id.indexOf('|') > -1) {
-        var urn = data.node.id.split('|')[1];
-        var viewableId = data.node.id.split('|')[2];
-        launchViewer(urn, viewableId);
-      }
-      else {
-        launchViewer(data.node.id);
-      }
-    }
-  });
+  })
+    .bind("activate_node.jstree", function (_, data) {
+        if (data != null && data.node != null && (data.node.type == 'versions' || data.node.type == 'bim360documents')) {
+            $('#forgeViewer').html('')
+
+            // in case the node.id contains a | then split into URN & viewableId
+            if (data.node.id.indexOf('|') > -1) {
+                var urn = data.node.id.split('|')[1];
+                var viewableId = data.node.id.split('|')[2];
+                launchViewer(urn, viewableId);
+            }
+            else {
+                launchViewer(data.node.id);
+            }
+        }
+    });
 }
 
 function showUser() {

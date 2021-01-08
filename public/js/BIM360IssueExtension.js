@@ -353,7 +353,7 @@ BIM360IssueExtension.prototype.showIssues = async function () {
       }
     }
 
-  pushPinExtension.loadItems(pushpinDataArray);
+  pushPinExtension.loadItemsV2(pushpinDataArray);
 }
 
 // *******************************************
