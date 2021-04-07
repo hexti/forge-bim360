@@ -1,42 +1,62 @@
-self.addEventListener('message', async function ({ data }) {
-    try {
-        const { token, containerId, urn } = data
-        const toBase64 = (data) => new Promise((resolve, reject) => {
-            const reader = new FileReader
+async function gerarRelatorioPDF (containerId, urn) {
+    const toBase64 = (data) => new Promise((resolve, reject) => {
+        const reader = new FileReader
 
-            reader.addEventListener('loadend', () => {
-                resolve(reader.result)
-            })
-
-            reader.addEventListener('error', () => {
-                reject(reader.error)
-            })
-
-            reader.readAsDataURL(new Blob([data]))
+        reader.addEventListener('loadend', () => {
+            resolve(reader.result)
         })
 
-        const init = {
-            credentials: 'include',
-            method: 'get',
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
+        reader.addEventListener('error', () => {
+            reject(reader.error)
+        })
 
-        const $jpg = /(jpe?g)$/i
+        reader.readAsDataURL(new Blob([data]))
+    })
 
-        let html = ''
+    const overlay = document.createElement('div')
+    const view = document.querySelector('#forgeViewer')
+    const viewcube = document.querySelector('.viewcubeWrapper')
+    const toolbar = document.querySelector('#guiviewer3d-toolbar')
+    const $jpg = /(jpe?g)$/i
 
-        const fileInformation = await fetch(`/p/https://developer.api.autodesk.com/data/v1/projects/b.${containerId}/items/${urn}`, init).then(res => res.json())
+    overlay.style.position = 'absolute'
+    overlay.style.top = 0
+    overlay.style.left = 0
+    overlay.style.width = '100%'
+    overlay.style.height = '100%'
+    overlay.style.zIndex = 100
 
-        const _issues = await fetch(`/p/https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, init).then(res => res.json())
+    view.appendChild(overlay)
 
-        const issues = _issues.data
+    let html = `<style type="text/css">
+        .tg  {border-collapse:collapse;border-spacing:0;}
+        .tg td{border-width:1px;font-family:Arial, sans-serif;font-size:10px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg th{font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg .tg-73oq{text-align:left;vertical-align:top}
+        .tg .tg-74oq{text-align:center;vertical-align:middle}
+        .AddBorderBaixo{border-bottom: 1px solid #000;}
+        .AddBorderAlto{border-top: 1px solid #000;}
+        .AddBorderDireita{border-right: 1px solid #000;}
+        .AddBorderEsquerda{border-left: 1px solid #000;}
+        .col-img{max-width:100%; max-height: 30vh;}
+        </style>`
 
-        const _lists = await fetch(`/p/https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, init).then(res => res.json())
+    try {
+        const { data: fileInformation } = await $api.get(`/data/v1/projects/b.${containerId}/items/${urn}`)
 
-        const lists = _lists.results
+        const _issues = await $api.get(`/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`)
+
+        const issues = _issues.data.data
+
+        const _lists = await $api.get(`/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`)
+
+        const lists = _lists.data.results
         let count = 0
+
+        viewcube.classList.add('hide')
+        toolbar.classList.add('hide')
 
         for (const issue of issues) {
             let _face = ''
@@ -53,21 +73,7 @@ self.addEventListener('message', async function ({ data }) {
                 }
             }
 
-            html += `<style type="text/css">
-            .tg  {border-collapse:collapse;border-spacing:0;}
-            .tg td{border-width:1px;font-family:Arial, sans-serif;font-size:10px;
-              overflow:hidden;padding:10px 5px;word-break:normal;}
-            .tg th{font-family:Arial, sans-serif;font-size:14px;
-              font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-            .tg .tg-73oq{text-align:left;vertical-align:top}
-            .tg .tg-74oq{text-align:center;vertical-align:middle}
-            .AddBorderBaixo{border-bottom: 1px solid #000;}
-            .AddBorderAlto{border-top: 1px solid #000;}
-            .AddBorderDireita{border-right: 1px solid #000;}
-            .AddBorderEsquerda{border-left: 1px solid #000;}
-            .col-img{max-width:100%; max-height: 30vh;}
-            </style>
-            <table class="tg" style="table-layout: fixed; width: 100%">
+            html += `<table class="tg" style="table-layout: fixed; width: 100%">
             <colgroup>
                 <col style="width: 25px">
                 <col style="width: 25px">
@@ -144,47 +150,78 @@ self.addEventListener('message', async function ({ data }) {
               <tr>
                 <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda">${issue.attributes.description || '(sem informações)'}</td>
                 <td class="tg-73oq"></td>
-                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda" align="center"></td>
-              </tr>
-              <tr>
-                <td colspan="9"></td>
-              </tr>`
+                <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda" align="center">`
 
-            const _attachments = await fetch('/p/' + issue.relationships.attachments.links.related, init).then(res => res.json())
+            const { viewport } = issue.attributes.pushpin_attributes.viewer_state
 
-            const attachments = _attachments.data
+            viewport.eye[0] -= 50
+            viewport.target[0] -= 50
 
-            let img = []
+            $('#issueId').val(issue.id)
+
+            const _showIssues = promisify(showIssues)
+            const _closePanel = promisify(closePanel)
+
+            const restoreState = () => new Promise((resolve, reject) => {
+                if (viewer.restoreState({ viewport }, null, true))
+                    resolve()
+                else
+                    reject()
+            })
+
+            const screenCanvas = () => new Promise((resolve) => {
+                html2canvas(view).then(resolve)
+            })
+
+            await _showIssues()
+            await _closePanel()
+            await idle(1)
+            await restoreState()
+            await idle(0.5)
+
+            const imgData = (await screenCanvas()).toDataURL()
+
+            html += `
+                            <img src="${imgData}" class="col-img">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9"></td>
+                    </tr>`
+
+            const _attachments = await $api.get(issue.relationships.attachments.links.related)
+            const attachments = _attachments.data.data
+
+            const img = []
+
             for (const attachment of attachments) {
                 if ($jpg.test(attachment.attributes.url)) {
-                    const image = await fetch('/p/' + attachment.attributes.url, init).then(res => res.blob())
+                    const { data: image } = await $api.get(attachment.attributes.url, { responseType: 'blob' })
                     const objUrl = URL.createObjectURL(image)
 
                     img.push({src: objUrl, name: attachment.attributes.name})
 
-                    for (let i = 0; i < 1e6; i++) {
-                        // Intervalo
-                    }
+                    await idle()
                 }
             }
 
-            if(img.length){
+            if (img.length) {
                 html += `<tr>
                             <td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[0].src}" class="col-img"><p>${img[0].name}</p></td>
                             <td></td>`
-                if(img[1] && img[1].src){
+                if (img[1] && img[1].src) {
                     html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto" align="center"><img src="${img[1].src}" class="col-img"><p>${img[0].name}</p></td>
                     </tr>`
-                }else{
+                } else {
                     html += `<td colspan="4" class="AddBorderBaixo AddBorderDireita AddBorderEsquerda AddBorderAlto"></td>
                     </tr>`
                 }
             }
 
             html += `</tbody>
-                    </table>`
+                </table>`
 
-            if(count < issues.length){
+            if (count < issues.length) {
                 html += '<table style="page-break-before: always;"></table>'
             }
         }
@@ -193,8 +230,12 @@ self.addEventListener('message', async function ({ data }) {
 
         const base64 = await toBase64(fullHtml)
 
-        self.postMessage([html, base64])
+        return Promise.resolve([html, base64])
     } catch (e) {
-        self.postMessage({ error: e.message })
+        return Promise.reject(e)
+    } finally {
+        view.removeChild(overlay)
+        viewcube.classList.remove('hide')
+        toolbar.classList.remove('hide')
     }
-})
+}

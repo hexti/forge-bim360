@@ -26,13 +26,13 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         this.panel = null
         this.token = localStorage.getItem('token')
     }
-    
+
     load() {
         if (/*this.viewer.model.getInstanceTree()*/ true) {
             this.customize();
         } else {
             this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this.customize());
-        }        
+        }
         return true;
     }
 
@@ -80,6 +80,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         };
         this._button.setToolTip('Anomalias');
         this._button.container.children[0].classList.add('fas', 'fa-exclamation-triangle');
+        this._button.container.children[0].style.paddingTop = 0;
         this._group.addControl(this._button);
     }
 
@@ -98,19 +99,19 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         // do we have access to the instance tree?
         const tree = _this.viewer.model.getInstanceTree();
         if (tree === undefined) { console.log('Loading tree...'); return; }
-        
+
         _this.panel = new BIM360IssuePanel(_this.viewer, _this.viewer.container, 'bim360IssuePanel', 'Problemas');
-        const onClick = (e) => {
+        const onClick = async (e) => {
             _this.viewer.select($(e.currentTarget).data('id'));
             _this.viewer.utilities.fitToView();
 
             if (_this.panel) _this.panel.removeAllProperties();
 
             if(_this.panel.isVisible() == false) _this.panel.setVisible(!_this.panel.isVisible());
-            
-            _this.panel.addProperty('Loading...', '');
+
+            _this.panel.addProperty('Carregando...', '');
             let id = $(e.currentTarget).data('content')
-            
+
             var selected = getSelectedNode();
             let url = selected.project.split("/");
             let count = url.length - 1
@@ -124,47 +125,53 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                 error: function(XMLHttpRequest, textStatus, errorThrown){
                   alert('Sem resultado de issue para essa consulta');
                 },
-                success: function(data){
+                done: async function(data){
                     let issue = data.data
-                    console.log(issue)
+
                     var dateCreated = moment(issue.attributes.created_at);
 
                     if (_this.panel) _this.panel.removeAllProperties();
-                    
+
                     _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
                     _this.panel.addProperty('Causa Raiz', issue.attributes.root_cause, 'Issue ' + issue.attributes.identifier);
                     _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier);
                     _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
                     _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
-                    
+
                     if(issue.attributes.attachment_count > 0){
                         let url = issue.relationships.attachments.links.related.replace('//', '@')
                         _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
                     }
-                  
-                    issue.attributes.custom_attributes.forEach(attribute => {
+
+                    let sortIssue = issue.attributes.custom_attributes
+
+                    sortIssue.sort(function (a, b) {
+                        if (a.title > b.title) {
+                            return 1;
+                        }
+                        if (a.title < b.title) {
+                            return -1;
+                        }
+                        return 0;
+                    });
+
+                    for (const attribute of sortIssue) {
                         if(attribute.type === 'list'){
-                        
-                        axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
-                            headers: {
-                                'Authorization': `Bearer ${_this.token}`
-                            }
-                        })
-                        .then((res) => {
+
+                            /* let a = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
+                                headers: {'Authorization': `Bearer ${_this.token}`}
+                            }) */
+
                             let options = res.data.results[0].metadata.list.options
                             options.forEach(option => {
-                            if(option.id === attribute.value){
-                                _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
-                            }
+                                if(option.id === attribute.value){
+                                    _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+                                }
                             });
-                        })
-                        .catch((error) => {
-                            console.error(error)
-                        })
                         }else{
                             _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
                         }
-                  });
+                    }
                 }
             });
         };
@@ -178,11 +185,11 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
 
             // create the label for the dbId
             const $label = $(`
-            <label class="markup update valign-wrapper" data-id="${icon.id}" data-content="${icon.content}" style="font-size: 15px;">
-                <span class="material-icons material-icons.md-18">${icon.css}</span> ${icon.label || ''}
-            </label>
+                <label class="markup update valign-wrapper" data-id="${icon.id}" data-content="${icon.content}" style="font-size: 15px;">
+                    <span class="material-icons material-icons.md-18">${icon.css}</span> ${icon.label || ''}
+                </label>
             `);
-            
+
             const pos = this.viewer.worldToClient(icon.location);
 
             // position the label center to it
@@ -210,7 +217,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                 });
             }
             getChildren(i, i);
-            
+
         }
     }
 
@@ -231,15 +238,8 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
     updateIcons() {
         $('#' + this.viewer.clientContainer.id + ' div.adsk-viewing-viewer .update').each((_, item) => {
             const id = item.dataset.id;
-            console.log(id)
             // get the center of the dbId (based on its fragIds bounding boxes)
-            //const pos = this.viewer.worldToClient(this.getModifiedWorldBoundingBox(id).center());
             const pos = this.viewer.worldToClient(this._issues[id].attributes.pushpin_attributes.location);
-
-            // position the label center to it
-            // $label.css('left', (Math.floor(pos.x - $label[0].offsetWidth / 2)+70) + 'px');
-            // $label.css('top', Math.floor(pos.y - $label[0].offsetHeight / 2) + 'px');
-            // $label.css('display', this.viewer.isNodeVisible(id) ? 'block' : 'none');
 
             item.style.left = (Math.floor(pos.x - item.offsetWidth / 2)+36) + 'px'
             item.style.top = Math.floor(pos.y - item.offsetHeight / 2) + 'px'
@@ -248,15 +248,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
     }
 
     async getIssues() {
-        // let _this = this
-        // var selected = getSelectedNode();
-
-        // let url = selected.project.split("/");
-        // let count = url.length - 1
-        // let containerId = url[count].substring(2);
-
         this._issues = await getAllIssues()
-
         this._icons = []
         var id = 0
         var label
@@ -267,7 +259,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                 case 'ACO':
                     color = 'Green'
                     break;
-            
+
                 case 'INF':
                     color = 'Orange'
                     break;
@@ -285,50 +277,6 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             this._icons.push({dbId: 5827, label: label, css: "warning", location: this._issues[i].attributes.pushpin_attributes.location, id: id, color: color, content:this._issues[i].id})
             id += 1
         }
-
-        // $.ajax({
-        //     url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
-        //     type: 'GET',
-        //     // Fetch the stored token from localStorage and set in the header
-        //     headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-        //     error: function(XMLHttpRequest, textStatus, errorThrown){
-        //       alert('Cannot read Issues');
-        //       return null
-        //     },
-        //     success: function(data){
-        //         data.data
-        //         this._issues = data.data
-        //         this._icons = []
-        //         var id = 0
-        //         var label
-        //         var color
-        //         data.data.forEach(issue => {
-
-        //             switch (issue.attributes.root_cause) {
-        //                 case 'ACO':
-        //                     color = 'Green'
-        //                     break;
-                    
-        //                 case 'INF':
-        //                     color = 'Orange'
-        //                     break;
-
-        //                 case 'DES':
-        //                     color = 'Red'
-        //                     break;
-
-        //                 default:
-        //                     color = 'Black'
-        //                     break;
-        //             }
-
-        //             label = '#' + issue.attributes.identifier + ' - ' + issue.attributes.root_cause
-        //             // this._icons.push({dbId: 5827, label: label, css: "fas fa-exclamation-triangle", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
-        //             this._icons.push({dbId: 5827, label: label, css: "warning", location: issue.attributes.pushpin_attributes.location, id: id, color: color, content:issue.id})
-        //             id += 1
-        //         });
-        //     }.bind(this)
-        // });
     }
 }
 

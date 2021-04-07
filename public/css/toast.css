@@ -1,0 +1,36 @@
+.app-toast {
+  background-color: white;
+  top: 9rem;
+  right: 2rem;
+  position: fixed;
+  z-index: 1100;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: opacity .2s ease-in-out;
+}
+
+.app-toast:hover {
+  opacity: 0.3;
+}
+
+.app-toast > .conteudo {
+  max-width: 25vw;
+  padding: 0.6rem;
+  position: relative;
+}
+
+.app-toast > .conteudo > .titulo {
+  position: relative;
+  padding-bottom: 1rem;
+  font-weight: 600;
+}
+
+.app-toast > .conteudo > .corpo {
+  position: relative;
+  width: 100%;
+}
+
+.app-toast > .conteudo > .titulo:empty {
+  display: none;
+}

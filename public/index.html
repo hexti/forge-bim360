@@ -36,8 +36,8 @@
 
     <!-- Folhas de Estilo para Novo Layout -->
     <!-- Google Fonts -->
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 
     <!-- Bootstrap Select Css -->
     <link rel="stylesheet" href="./lib/adminbsb-materialdesign/plugins/bootstrap-select/css/bootstrap-select.css">
@@ -56,15 +56,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/pdfmake-0.1.18/dt-1.10.13/af-2.1.3/b-1.2.4/b-colvis-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/cr-1.3.2/fc-3.2.2/fh-3.1.2/kt-2.2.0/r-2.1.0/rr-1.2.0/sc-1.4.2/se-1.2.0/datatables.min.css"/>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/themes/default/style.min.css" integrity="sha512-P8BwDSUInKMA7I116Z1RFg/Dfk85uFdliEUYO7vQlwtxLVMNvZimfMAQsaf++9EhlAGOVX6yhDQAIY3/70jDUg==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="//developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/pdfmake-0.1.18/dt-1.10.13/af-2.1.3/b-1.2.4/b-colvis-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/cr-1.3.2/fc-3.2.2/fh-3.1.2/kt-2.2.0/r-2.1.0/rr-1.2.0/sc-1.4.2/se-1.2.0/datatables.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/themes/default/style.min.css" integrity="sha512-P8BwDSUInKMA7I116Z1RFg/Dfk85uFdliEUYO7vQlwtxLVMNvZimfMAQsaf++9EhlAGOVX6yhDQAIY3/70jDUg==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <link rel="stylesheet" href="./css/toast.css">
 
     <style>
         .sidebar .user-info {
@@ -105,42 +107,28 @@
             </div>
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
-                  <li class="dropdown">
+                  <li>
                     <a href="#" onclick="closePanel()" class="btn-search-issues" data-toggle="modal" data-target="#filterIssues" role="button" style="display: none;">
                       <i class="material-icons">filter_alt</i>
                     </a>
                   </li>
-                  <li class="dropdown">
-                    <a href="#" onclick="exportXLS(this)" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                  <li>
+                    <a href="#" onclick="exportXLS(this)" class="btn-search-issues" data-toggle="modal" role="button" style="display: none;">
                       <i class="material-icons">description</i>
                       <i class="fas fa-spinner fa-spin" style="display: none;"></i>
                     </a>
                   </li>
-                  <li class="dropdown">
-                    <a name="pdf" href="#" class="dropdown-toggle btn-search-issues" data-toggle="modal" role="button" style="display: none;">
+                  <li>
+                    <a name="pdf" href="#" class="btn-search-issues" data-toggle="modal" role="button" style="display: none;">
                       <i class="material-icons">print</i>
                       <i class="fas fa-spinner fa-spin" style="display: none;"></i>
                     </a>
                   </li>
-                  <!-- <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
-                          <i class="material-icons">notifications</i>
-                          <span class="label-count">1</span>
-                      </a>
-                      <ul class="dropdown-menu">
-                          <li class="header">NOTIFICAÇÃO</li>
-                          <li class="body">
-                          </li>
-                          <li class="footer">
-                              <a href="#">Visualiazar Todas as Notificações</a>
-                          </li>
-                      </ul>
-                  </li> -->
                 </ul>
             </div>
         </div>
     </nav>
-  
+
     <section>
         <!-- Left Sidebar -->
         <aside id="leftsidebar" class="sidebar">
@@ -156,7 +144,7 @@
                     <div class="email">
                         anderson.freitas@concremat.com.br
                     </div>
-    
+
                     <form action="#" method="post" name="logout">
                         <input type="hidden" name="intent" value="#">
                         <div class="btn-group user-helper-dropdown">
@@ -188,7 +176,7 @@
                             <span>Início</span>
                         </a>
                     </li>
-    
+
                     <li>
                       <a href="#" data-toggle="modal" data-target="#listHub">
                         <i class="material-icons">folder</i>
@@ -198,35 +186,20 @@
                 </ul>
             </div>
             <!-- #Menu -->
-    
-            <!-- Footer -->
-            <!-- <div class="legal">
-                <div class="copyright">
-                    <p>
-                        <a href="#">Problemas ao utilizar o sistema?</a>
-                    </p>
-                </div>
-                <div class="copyright">
-                    &copy; 2017 - <?=date('Y')?>
-                    <a target="_blank" href="//www.concremat.com.br">Concremat Engenharia.<br>
-                        <img width="30%" src="./img/concremat_port340.png"></a>
-                </div>
-            </div> -->
-            <!-- #Footer -->
         </aside>
-    
+
         <!-- #END# Left Sidebar -->
     </section>
 
     <section class="content" style="margin-top: 40px;">
-      <div class="container-fluid fill">
+      <div class="container-fluid">
         <div class="card">
-          <div class="body">
-            <div class="row clearfix fill">
-              <div class="col-sm-12 col-md-12 col-lg-12 fill">
-                  <div id="forgeViewer"></div>
+          <div class="body" style="height: calc(100vh - 13rem);">
+              <div id="forgeViewer" style="position: relative; height: 100%;">
+                <div style="display: flex; align-items: center; height: 100%;">
+                  <h3 style="margin: 0 auto; color: rgb(200, 200, 200);">Selecionar o Modelo através do menu lateral.</h3>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -239,12 +212,12 @@
             <div id="userHubs">
               <div style="padding-top: 100px; text-align: center;">
                 <button class="btn btn-lg btn-default" id="autodeskSigninButton">
-                  <img src="//github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/autodesk_text.png" height="20"> Sign in
+                  <img src="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/autodesk_text.png" height="20"> Sign in
                 </button>
                 <br/>
                 <br/>
                 <br/> You may also need to provision your<br/> BIM 360 Docs account for this app.<br/>
-                <a href="//forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
+                <a href="https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
               </div>
             </div>
           </div>
@@ -262,15 +235,15 @@
                     </button>
                 </div>
                 <div class="modal-body"></div>
-                </div>
+            </div>
         </div>
     </div>
 
-    <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="filterIssues" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h3 class="modal-title text-bold" id="exampleModalLabel">Filtro de Anomalias</h3>
+            <h3 class="modal-title text-bold">Filtro de Anomalias</h3>
           </div>
           <div class="modal-body">
             <label>Issue</label>
@@ -302,53 +275,47 @@
       </div>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title text-bold" id="exampleModalLabel">Anexos da Anomalia</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body" id="img">
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        </div>
-        </div>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+          <div class="modal-header">
+              <h3 class="modal-title text-bold">Anexos da Anomalia</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body" id="img">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </div>
+          </div>
+      </div>
     </div>
-    </div>
-
-    <button type="button" id="btn-anexo" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="display: none;">
-    Launch demo modal
-    </button>
 
   <!-- Bootstrap Core Js -->
   <script type="text/javascript" src="./lib/adminbsb-materialdesign/plugins/bootstrap/js/bootstrap.min.js"></script>
 
-  <!-- Slimscroll Plugin Js -->
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js" integrity="sha512-cJMgI2OtiquRH4L9u+WQW+mz828vmdp9ljOcm/vKTQ7+ydQUktrPVewlykMgozPP+NUBbHdeifE6iJ6UVjNw5Q==" crossorigin="anonymous"></script>
-
   <!-- Waves Effect Plugin Js -->
   <script type="text/javascript" src="./lib/adminbsb-materialdesign/plugins/node-waves/waves.js"></script>
 
+  <!-- Slimscroll Plugin Js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js" integrity="sha512-cJMgI2OtiquRH4L9u+WQW+mz828vmdp9ljOcm/vKTQ7+ydQUktrPVewlykMgozPP+NUBbHdeifE6iJ6UVjNw5Q==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" integrity="sha512-Sr1M6mlMOXTKahO1wcUzFu/kAb3iZVaQWGvxOEePRm7c2NjGRZ7ckRT6218PaSXlz8eEoFpKkDVvl2rTqKrQLA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js" integrity="sha512-z8+IQvZEPLZTS3Dj7gklMVJfJMNbQjIQwmKMwAuX+P9KkzEmDIiXybdXsbWuoMlQ942SfyNafeu6JdOGwzCx0Q==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment-with-locales.min.js" integrity="sha512-+4wyLnVjbJnGld2sKt9RE0zwcDRmr2KimlbeYRRMZFqfKYV2o69ncGWG12VGMySqnPKZXpT8qq+p8OZJIZsTkQ==" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.7/dist/html2canvas.min.js" integrity="sha256-Ax1aqtvxWBY0xWND+tPZVva/VQZy9t1Ce17ZJO+NTRc=" crossorigin="anonymous"></script>
 
-  <!-- Jquery CountTo Plugin Js -->
-
-  <!-- DateTimePicker -->
-
-  <script src="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" integrity="sha512-Sr1M6mlMOXTKahO1wcUzFu/kAb3iZVaQWGvxOEePRm7c2NjGRZ7ckRT6218PaSXlz8eEoFpKkDVvl2rTqKrQLA==" crossorigin="anonymous"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js" integrity="sha512-z8+IQvZEPLZTS3Dj7gklMVJfJMNbQjIQwmKMwAuX+P9KkzEmDIiXybdXsbWuoMlQ942SfyNafeu6JdOGwzCx0Q==" crossorigin="anonymous"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment-with-locales.min.js" integrity="sha512-+4wyLnVjbJnGld2sKt9RE0zwcDRmr2KimlbeYRRMZFqfKYV2o69ncGWG12VGMySqnPKZXpT8qq+p8OZJIZsTkQ==" crossorigin="anonymous"></script>
-
-  <script src="//developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+  <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+  <script src="/js/state.js"></script>
+  <script src="/js/functions.js"></script>
   <script src="/js/ForgeTree.js"></script>
   <script src="/js/ForgeViewer.js"></script>
   <script src="/js/BIM360IssueExtension.js"></script>
   <script src="/js/IconMarkupExtension.js"></script>
   <script src="/js/getIssues.js"></script>
+  <script src="/js/RelatorioPDF.js"></script>
 
   <script>
     $('select').select2({width: '100%', dropdownParent: $('#filterIssues')})
@@ -365,7 +332,7 @@
       })
   </script>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
       moment.locale('pt-BR')
       document.querySelector('a[name=pdf]')
@@ -447,49 +414,47 @@
       const urn = selected.urn;
       const token = localStorage.getItem('token')
 
-      const relatorio = new Worker('./js/RelatorioPDF.js')
+      this.style.pointerEvents = 'none'
 
-      this.disabled = true
       $pdf.hide()
       $spin.show()
 
-      relatorio.addEventListener('message', (ev) => {
-        const page = 'relatorio-' + (new Date).getTime().toString()
-        const blob = new Blob([
-          `<!DOCTYPE html><html><head><meta charset="utf-8" /><title>${page}</title></head><body>`, ev.data[0], '</body></html>'
-        ], {type: 'text/html'})
-        const objUrl = URL.createObjectURL(blob)
-        const frame = document.createElement('iframe')
-        frame.setAttribute('src', objUrl)
-        frame.style.width = '100%'
-        frame.style.height = '75vh'
+      gerarRelatorioPDF(containerId, urn)
+        .then(([html]) => {
+          const $modal = $('#pdfModal')
+          const page = 'relatorio-' + (new Date).getTime().toString()
+          const blob = new Blob([
+            `<!DOCTYPE html><html><head><meta charset="utf-8" /><title>${page}</title></head><body>`, html, '</body></html>'
+          ], {type: 'text/html'})
 
-        const $modal = $('#pdfModal')
+          const objUrl = URL.createObjectURL(blob)
+          const frame = document.createElement('iframe')
 
-        $modal.find('.modal-body').html(frame)
-        $modal.find('.modal-header')
-          .children()
-          .first()
-          .off()
-          .click(() => {
-            frame.contentWindow.print()
-          })
+          frame.setAttribute('src', objUrl)
+          frame.style.width = '100%'
+          frame.style.height = '75vh'
 
-        $modal.modal()
-        $spin.hide()
-        $pdf.show()
-        this.disabled = false
-      })
+          $modal.find('.modal-body').html(frame)
+          $modal.find('.modal-header')
+            .children()
+            .first()
+            .off()
+            .click(() => {
+              frame.contentWindow.print()
+            })
 
-      relatorio.addEventListener('error', (ev) => {
-        console.error(ev)
-        $spin.hide()
-        $pdf.show()
-        this.disabled = false
-        alert('Ocorreu um erro ao tentar gerar um relatório')
-      })
+          $modal.modal()
+        })
+        .catch((err) => {
+          console.error(err)
 
-      relatorio.postMessage({ token, containerId, urn })
+          alert('Ocorreu um erro ao tentar gerar um relatório')
+        })
+        .finally(() => {
+          this.style.pointerEvents = null
+          $spin.hide()
+          $pdf.show()
+        })
     }
 
     localStorage.removeItem('nivelAlerta');
