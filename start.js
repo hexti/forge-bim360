@@ -89,7 +89,7 @@ app.get('/export/xls', async (req, res) => {
     let _res = res
     const dataset = []
     const excel = require('node-excel-export');
-    
+
     const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
         headers: {
             'Authorization': `Bearer ${token}`
@@ -308,6 +308,80 @@ app.get('/export/xls', async (req, res) => {
     // You can then return this straight
     _res.attachment('report.xlsx'); // This is sails.js specific (in general you need to set headers)
     return _res.send(report);
+})
+
+// Redireciona solicitação, CORS
+app.get('/public', async (req, res) => {
+    try {
+        let token = req.query.token
+        let containerId = req.query.container
+        let urn = req.query.urn
+        const dataset = []
+
+        const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        const issues = result.data.data
+
+        const opt =  await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        const lists = opt.data.results
+        let dimensaoVertical = ''
+        let _face = ''
+
+        issues.forEach(issue => {
+            lists.forEach(list => {
+                if(issue.attributes.custom_attributes[1].id == list.id){
+                    list.metadata.list.options.forEach(option => {
+                        if(option.id === issue.attributes.custom_attributes[1].value){
+                            _face = option.value
+                        }
+                    });
+                }
+
+                if(issue.attributes.custom_attributes[5].id == list.id){
+                    list.metadata.list.options.forEach(option => {
+                        if(option.id === issue.attributes.custom_attributes[1].value){
+                            dimensaoVertical = option.value
+                        }
+                    });
+                }
+            })
+
+            dataset.push({
+                issue_id: issue.attributes.identifier,
+                localizacao: issue.attributes.location_description,
+                elemento_estrutural: issue.attributes.location_description,
+                root_cause: issue.attributes.root_cause,
+                face: _face,
+                causa_provavel: issue.attributes.custom_attributes[4].value,
+                estado: issue.attributes.custom_attributes[0].value,
+                dimensao_horizontal: issue.attributes.custom_attributes[8].value,
+                dimensao_vertical: dimensaoVertical,
+                quantidade: issue.attributes.custom_attributes[2].value,
+                espacamento: issue.attributes.custom_attributes[6].value,
+                abertura: issue.attributes.custom_attributes[7].value,
+                nivel_alerta: issue.attributes.custom_attributes[7].value,
+                description: issue.attributes.description,
+            })
+        });
+        console.log(dataset)
+        res.send(dataset)
+    } catch (e) {
+        if (e.response) {
+            return res.status(e.response.status).send(e.response.data)
+        }
+
+        console.error(e)
+        res.sendStatus(500)
+    }
 })
 
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
