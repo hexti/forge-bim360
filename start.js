@@ -318,7 +318,7 @@ app.get('/public', async (req, res) => {
         let urn = req.query.urn
         const dataset = []
 
-        const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${urn}`, {
+        const result =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/319b67a2-78d3-411d-a93a-4222de9062d9/quality-issues?filter[target_urn]=urn:adsk.wipprod:dm.lineage:1soEHZQvSPigWsLeFTgYiQ`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -356,6 +356,7 @@ app.get('/public', async (req, res) => {
             })
 
             dataset.push({
+                modelo: 'VIADUTO SANTA IFIGÊNIA_R03',
                 issue_id: issue.attributes.identifier,
                 localizacao: issue.attributes.location_description,
                 elemento_estrutural: issue.attributes.location_description,
@@ -372,7 +373,53 @@ app.get('/public', async (req, res) => {
                 description: issue.attributes.description,
             })
         });
-        console.log(dataset)
+
+        const result2 =  await axios.get(`https://developer.api.autodesk.com/issues/v1/containers/319b67a2-78d3-411d-a93a-4222de9062d9/quality-issues?filter[target_urn]=urn:adsk.wipprod:dm.lineage:MoP-X7XURlyY2mAljRSG5A`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+
+        const issues2 = result2.data.data
+
+        issues2.forEach(issue => {
+            lists.forEach(list => {
+                if(issue.attributes.custom_attributes[1].id == list.id){
+                    list.metadata.list.options.forEach(option => {
+                        if(option.id === issue.attributes.custom_attributes[1].value){
+                            _face = option.value
+                        }
+                    });
+                }
+
+                if(issue.attributes.custom_attributes[5].id == list.id){
+                    list.metadata.list.options.forEach(option => {
+                        if(option.id === issue.attributes.custom_attributes[1].value){
+                            dimensaoVertical = option.value
+                        }
+                    });
+                }
+            })
+
+            dataset.push({
+                modelo: 'Modelo_Testes em campo',
+                issue_id: issue.attributes.identifier,
+                localizacao: issue.attributes.location_description,
+                elemento_estrutural: issue.attributes.location_description,
+                root_cause: issue.attributes.root_cause,
+                face: _face,
+                causa_provavel: issue.attributes.custom_attributes[4].value,
+                estado: issue.attributes.custom_attributes[0].value,
+                dimensao_horizontal: issue.attributes.custom_attributes[8].value,
+                dimensao_vertical: dimensaoVertical,
+                quantidade: issue.attributes.custom_attributes[2].value,
+                espacamento: issue.attributes.custom_attributes[6].value,
+                abertura: issue.attributes.custom_attributes[7].value,
+                nivel_alerta: issue.attributes.custom_attributes[7].value,
+                description: issue.attributes.description,
+            })
+        });
+
         res.send(dataset)
     } catch (e) {
         if (e.response) {
