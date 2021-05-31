@@ -125,11 +125,36 @@ function isHTMLElement (el) {
 /**
  * Cria um overlay e anexa ao pai de um elemento ou ao Body do HTML.
  *
- * @param {Object} options
- * @param {Boolean} options.exibir Exibir ou não o spinner
- * @param {HTMLElement | String} options.el Elemento para qual anexar
+ * @param {object} options
+ * @param {boolean} options.exibir Exibir ou não o spinner
+ * @param {HTMLElement | string} options.el Elemento para qual anexar
  */
 function loadingOverlay (options = {}) {
+    const exibir = typeof options.exibir === 'boolean' ? options.exibir : true
+
+    /**
+     * @param {HTMLElement | HTMLElement[]} els
+     * @return {string}
+     */
+    const whichTransition = (els) => {
+        const transitions = {
+            transition: 'transitionend',
+            OTransition: 'oTransitionEnd',
+            MozTransition: 'transitionend',
+            WebkitTransition: 'webkitTransitionEnd'
+        }
+
+        for (const t in transitions) {
+            if (Array.isArray(els) && els.some(el => el.style[t] !== undefined)) {
+                return transitions[t]
+            }
+
+            if (els.style[t] !== undefined) {
+                return transitions[t]
+            }
+        }
+    }
+
     /**
      * @return {HTMLElement}
      */
@@ -138,6 +163,11 @@ function loadingOverlay (options = {}) {
 
         overlay.classList.add('loading-overlay')
         overlay.style.opacity = '0'
+
+        // nextTick
+        setTimeout(() => {
+            overlay.style.opacity = '1'
+        }, 100)
 
         overlay.innerHTML = `
             <div class="preloader">
@@ -156,55 +186,59 @@ function loadingOverlay (options = {}) {
     }
 
     /**
-     * @param {HTMLElement} el
-     * @return {Boolean}
+     * @param {HTMLElement} parent
+     * @param {HTMLElement} element
      */
-    const whichTransition = (el) => {
-        const transitions = {
-            transition: 'transitionend',
-            OTransition: 'oTransitionEnd',
-            MozTransition: 'transitionend',
-            WebkitTransition: 'webkitTransitionEnd'
+    const detach = (parent, element) => {
+        const transition = whichTransition(element)
+
+        const transitionEndHandler = () => {
+            element.removeEventListener(transition, transitionEndHandler)
+            parent.removeChild(element)
         }
 
-        for (const t in transitions) {
-            if (el.style[t] !== undefined) {
-                return transitions[t]
-            }
-        }
+        element.addEventListener(transition, transitionEndHandler)
+        element.style.opacity = '0'
     }
 
     return new Promise((resolve, reject) => {
-        const parent = isHTMLElement(options.el)
-            ? options.el : typeof options.el === 'string'
-                ? document.querySelector(options.el) : document.body
+        const parents = isHTMLElement(options.el)
+            ? [options.el] : typeof options.el === 'string'
+                ? Array.from(
+                    document.querySelectorAll(options.el)
+                 ) : [document.body]
 
-        if (!parent) {
-            reject(new TypeError('Não conseguiu encontrar um elemento pai para anexar o spinner.'))
+        if (!parents.length) {
+            return reject(new TypeError('Não conseguiu encontrar um elemento pai para anexar o spinner.'))
         }
 
-        const loading = document.querySelector('.loading-overlay')
-        const overlay = loading || createOverlay()
-        const exibir = typeof options.exibir === 'boolean' ? options.exibir : true
-        const anexado = !!loading
+        const loading = Array.from(
+            ! isHTMLElement(options.el)
+                ? document.querySelectorAll(
+                    (typeof options.el === 'string'
+                        ? options.el + ' .loading-overlay'
+                        : '.loading-overlay')
+                )
+                : options.el.querySelectorAll('.loading-overlay')
+        )
 
-        if ((!exibir && !anexado) || (exibir && anexado && overlay.style.opacity === '1'))
-            return resolve()
+        const anexado = !!loading.length
 
-        overlay.addEventListener(whichTransition(overlay), () => {
-            !exibir && anexado && parent.removeChild(overlay)
-            resolve()
-        })
-
-        if ((exibir && overlay.style.opacity === '0') || (!anexado && exibir)) {
-            parent.appendChild(overlay)
-
-            // nextTick
-            setTimeout(() => {
-                overlay.style.opacity = '1'
-            }, 100)
-        } else if (anexado && overlay.style.opacity === '1' && !exibir) {
-            overlay.style.opacity = '0'
+        if ((!exibir && !anexado)
+            || (exibir && anexado && loading.every(l => l.style.opacity === '1'))) {
+            return resolve({
+                status: 'finished',
+                show: exibir,
+                attached: anexado
+            })
         }
+
+        if (exibir && !anexado) {
+            parents.forEach(el => el.appendChild(createOverlay()))
+        } else if (anexado && loading.every(l => l.style.opacity === '1') && !exibir) {
+            parents.forEach(el => detach(el, el.querySelector('.loading-overlay')))
+        }
+
+        resolve({ status: 'completed' })
     })
 }
