@@ -405,49 +405,60 @@ var viewStates = {
   "view3": {"viewport":{"name":"","eye":[-424.2691476449123,542.6505164276925,279.13303803246106],"target":[268.0259078155068,-460.8007897974295,-346.6149756761407],"up":[0.5432521913940823,0.6810027141839978,-0.4910319336046847],"worldUpVector":[0,1,0],"pivotPoint":[24.323528772924313,57.16362725342778,128.62718425779093],"distanceToOrbit":650.8747272159101,"aspectRatio":1.902061855670103,"projection":"perspective","isOrthographic":false,"fieldOfView":22.918312146742387}},
 }
 
-function openAnexos(url){
-  this.getAnexos(url)
-  $('#btn-anexo').click()
+async function openAnexos(url) {
+    const options = { el: '.content .viewer .card' }
+
+    loadingOverlay(options)
+
+    await this.getAnexos(url)
+
+    options.exibir = false
+
+    loadingOverlay(options)
+
+    $('.modal.anexo').modal()
 }
 
-function getAnexos(url){
-  let newUrl = url.replace('@', '//')
-  let token = localStorage.getItem('token')
-  $('#img').html('')
-  axios.get(`${newUrl}`, {
-    headers: {
-        'Authorization': `Bearer ${token}`
+async function getAnexos(url) {
+    const token = localStorage.getItem('token')
+    const headers = { Authorization: `Bearer ${token}` }
+    const newUrl = url.replace('@', '//')
+    const responseType = 'blob'
+
+    $('#img').html('')
+
+    const { data } = await axios.get(`${newUrl}`, { headers }).then(res => res.data)
+
+    let i = 1
+
+    for (const attach of data) {
+        const img = document.createElement('img')
+
+        const blob = await axios.get(`${attach.attributes.url}`, { headers, responseType }).then(res => res.data)
+
+        const reader = new FileReader
+
+        const load = () => new Promise((resolve) => {
+            reader.addEventListener('load', function () {
+                const div = document.createElement('div')
+                const url = this.result
+
+                if (i++ < data.length) {
+                    div.style.marginBottom = '1.5rem'
+                }
+
+                img.setAttribute('src', url)
+                img.setAttribute('class', 'img-thumbnail')
+                div.append(img, attach.attributes.name)
+
+                $('#img').append(div)
+
+                resolve()
+            })
+
+            reader.readAsDataURL(blob)
+        })
+
+        await load()
     }
-  })
-  .then((res) => {
-    res.data.data.forEach(attachment => {
-      var imageEl = document.createElement("img");
-      axios.get(`${attachment.attributes.url}`, {
-          headers: {
-              'Authorization': `Bearer ${token}`
-          },
-          responseType:"blob"
-      })
-      .then((res) => {
-          var reader = new window.FileReader();
-          reader.readAsDataURL(res.data);
-          reader.onload = function() {
-            var imageDataUrl = reader.result;
-            var divNova = document.createElement("div");
-            imageEl.setAttribute("src", imageDataUrl);
-            imageEl.setAttribute("class", "img-thumbnail");
-            divNova.appendChild(imageEl)
-            var conteudoNovo = document.createTextNode(attachment.attributes.name);
-            divNova.appendChild(conteudoNovo)
-            $('#img').append(divNova)
-          }
-      })
-      .catch((error) => {
-          console.error(error)
-      })
-    });
-  })
-  .catch((error) => {
-      console.error(error)
-  })
 }
