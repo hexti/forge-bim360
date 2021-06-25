@@ -117,63 +117,66 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             let count = url.length - 1
             let containerId = url[count].substring(2);
 
-            $.ajax({
-                url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues/${id}`,
-                type: 'GET',
-                // Fetch the stored token from localStorage and set in the header
-                headers: {"Authorization": `Bearer ${_this.token}`},
-                error: function(XMLHttpRequest, textStatus, errorThrown){
-                  alert('Sem resultado de issue para essa consulta');
-                },
-                done: async function(data){
-                    let issue = data.data
+            const headers = {
+                Authorization: `Bearer ${_this.token}`
+            }
 
-                    var dateCreated = moment(issue.attributes.created_at);
+            axios.get(`https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues/${id}`, { headers })
+                .then(async ({ data: res }) => {
+                    const issue = res.data
 
-                    if (_this.panel) _this.panel.removeAllProperties();
+                    const dateCreated = moment(issue.attributes.created_at)
 
-                    _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier);
-                    _this.panel.addProperty('Causa Raiz', issue.attributes.root_cause, 'Issue ' + issue.attributes.identifier);
-                    _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier);
-                    _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier);
-                    _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier);
+                    if (_this.panel) {
+                        _this.panel.removeAllProperties()
+                        _this.panel.addProperty('Titulo', issue.attributes.title, 'Issue ' + issue.attributes.identifier)
+                        _this.panel.addProperty('Causa Raiz', issue.attributes.root_cause, 'Issue ' + issue.attributes.identifier)
+                        _this.panel.addProperty('Localização', issue.attributes.location_description, 'Issue ' + issue.attributes.identifier)
+                        _this.panel.addProperty('Versão', 'V' + issue.attributes.starting_version + (selected.version != issue.attributes.starting_version ? ' (Not current)' : ''), 'Issue ' + issue.attributes.identifier)
+                        _this.panel.addProperty('Criado', dateCreated.format('MMMM Do YYYY, h:mm a'), 'Issue ' + issue.attributes.identifier)
 
-                    if(issue.attributes.attachment_count > 0){
-                        let url = issue.relationships.attachments.links.related.replace('//', '@')
-                        _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier);
-                    }
-
-                    let sortIssue = issue.attributes.custom_attributes
-
-                    sortIssue.sort(function (a, b) {
-                        if (a.title > b.title) {
-                            return 1;
+                        if (issue.attributes.attachment_count > 0) {
+                            const url = issue.relationships.attachments.links.related.replace('//', '@')
+                            _this.panel.addProperty('Anexo', `<a href="javascript:void(0);" onclick="openAnexos('${url}')" title="Visualizar" class="text-white"><i class="fas fa-camera"></i> Visualizar</a>`, 'Issue ' + issue.attributes.identifier)
                         }
-                        if (a.title < b.title) {
-                            return -1;
-                        }
-                        return 0;
-                    });
 
-                    for (const attribute of sortIssue) {
-                        if(attribute.type === 'list'){
+                        const sortIssue = issue.attributes.custom_attributes
 
-                            /* let a = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, {
-                                headers: {'Authorization': `Bearer ${_this.token}`}
-                            }) */
+                        sortIssue.sort((a, b) => {
+                            if (a.title > b.title) {
+                                return 1
+                            }
+                            if (a.title < b.title) {
+                                return -1
+                            }
+                            return 0
+                        })
 
-                            let options = res.data.results[0].metadata.list.options
-                            options.forEach(option => {
-                                if(option.id === attribute.value){
-                                    _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier);
+                        for (const attribute of sortIssue) {
+                            if (attribute.type === 'list') {
+                                const { data: res } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attribute.id}`, { headers })
+
+                                if (res.results[0]) {
+                                    const options = res.results[0].metadata.list.options
+
+                                    options.forEach((option) => {
+                                        if (option.id === attribute.value) {
+                                            _this.panel.addProperty(attribute.title, option.value, 'Issue ' + issue.attributes.identifier)
+                                        }
+                                    })
                                 }
-                            });
-                        }else{
-                            _this.panel.addProperty(attribute.title, attribute.value, 'Issue ' + issue.attributes.identifier);
+                            } else {
+                                _this.panel.addProperty(attribute.title, attribute.value || '(sem informações)', 'Issue ' + issue.attributes.identifier)
+                            }
                         }
+                    } else {
+                        throw new TypeError('BIM360IssuePanel não foi instanciada.')
                     }
-                }
-            });
+                })
+                .catch((err) => {
+                    alert('Ocorreu um problema ao tentar recuperar as informações')
+                    console.error(err)
+                })
         };
 
         this._frags = {}
