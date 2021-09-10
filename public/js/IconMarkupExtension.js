@@ -31,7 +31,6 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         if (/*this.viewer.model.getInstanceTree()*/ true) {
             this.customize();
         } else {
-            this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this.customize());
         }
         return true;
     }
@@ -258,7 +257,49 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         var color
 
         for(let i = 0; i < this._issues.length; i++){
-            switch (this._issues[i].attributes.root_cause) {
+            const { id: attr, value: _value } = this._issues[i].attributes.custom_attributes.find(({ title }) => {
+                return title.toLowerCase().replace(/[\xE0-\xFC]/g, (c) => {
+                    switch (c) {
+                        case '\u00e1':
+                        case '\u00e2':
+                        case '\u00e3':
+                            return 'a'
+                        case '\u00e9':
+                        case '\u00ea':
+                            return 'e'
+                        case '\u00ed':
+                        case '\u00ee':
+                            return 'i'
+                        case '\u00f3':
+                        case '\u00f4':
+                            return 'o'
+                        case '\u00fa':
+                        case '\u00fb':
+                            return 'u'
+                        case '\u00e7':
+                            return 'ç'
+                        default:
+                            throw new TypeError(`Unexpected special character: ${c}`)
+                    }
+                }).replace(' ', '_') === 'causa_raiz'
+            }) || {}
+
+            let value
+
+            if (attr) {
+                const selected = getSelectedNode();
+                const url = selected.project.split('/');
+                const count = url.length - 1
+                const containerId = url[count].substring(2);
+
+                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attr}`, {
+                    headers: {'Authorization': `Bearer ${this.token}`}
+                }).then(({ data }) => data)
+
+                value = results[0].metadata.list.options.find(el => el.id === _value).value
+            }
+
+            switch (value || this._issues[i].attributes.root_cause) {
                 case 'ACO':
                     color = 'Green'
                     break;
@@ -276,7 +317,7 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
                     break;
             }
 
-            label = '#' + this._issues[i].attributes.identifier + ' - ' + this._issues[i].attributes.root_cause
+            label = '#' + this._issues[i].attributes.identifier + ' - ' + value
             this._icons.push({dbId: 5827, label: label, css: "warning", location: this._issues[i].attributes.pushpin_attributes.location, id: id, color: color, content:this._issues[i].id})
             id += 1
         }
