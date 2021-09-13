@@ -253,68 +253,55 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         var label
         var color
 
+        const selected = getSelectedNode()
+        const url = selected.project.split('/')
+        const count = url.length - 1
+        const containerId = url[count].substr(2)
+
         for(let i = 0; i < this._issues.length; i++){
-            const { id: attr, value: _value } = this._issues[i].attributes.custom_attributes.find(({ title }) => {
-                return title.toLowerCase().replace(/[\xE0-\xFC]/g, (c) => {
-                    switch (c) {
-                        case '\u00e1':
-                        case '\u00e2':
-                        case '\u00e3':
-                            return 'a'
-                        case '\u00e9':
-                        case '\u00ea':
-                            return 'e'
-                        case '\u00ed':
-                        case '\u00ee':
-                            return 'i'
-                        case '\u00f3':
-                        case '\u00f4':
-                            return 'o'
-                        case '\u00fa':
-                        case '\u00fb':
-                            return 'u'
-                        case '\u00e7':
-                            return 'ç'
-                        default:
-                            throw new TypeError(`Unexpected special character: ${c}`)
-                    }
-                }).replace(' ', '_') === 'causa_raiz'
-            }) || {}
+            const { id: alerta_id, value: _alerta } = this._issues[i].attributes.custom_attributes.find(({ title }) =>
+                str_normalize(title).toLowerCase().substr(0, title.indexOf('(')).trim() === 'nivel de alerta') || {}
 
-            let value
+            const { id: causa_raiz_id, value: _causa_raiz } = this._issues[i].attributes.custom_attributes.find(({ title }) =>
+                str_normalize(title).toLowerCase() === 'causa raiz') || {}
 
-            if (attr) {
-                const selected = getSelectedNode();
-                const url = selected.project.split('/');
-                const count = url.length - 1
-                const containerId = url[count].substring(2);
+            let alerta
+            let causa_raiz
 
-                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${attr}`, {
+            if (alerta_id) {
+                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${alerta_id}`, {
                     headers: {'Authorization': `Bearer ${this.token}`}
                 }).then(({ data }) => data)
 
-                value = results[0].metadata.list.options.find(el => el.id === _value).value
+                alerta = str_normalize(results[0].metadata.list.options.find(el => el.id === _alerta).value).toLowerCase()
             }
 
-            switch (value || this._issues[i].attributes.root_cause) {
-                case 'ACO':
+            if (causa_raiz_id) {
+                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${causa_raiz_id}`, {
+                    headers: {'Authorization': `Bearer ${this.token}`}
+                }).then(({ data }) => data)
+
+                causa_raiz = results[0].metadata.list.options.find(el => el.id === _causa_raiz).value
+            }
+
+            switch (alerta) {
+                case 'toleravel':
                     color = 'Green'
                     break;
 
-                case 'INF':
+                case 'atencao':
                     color = 'Orange'
                     break;
 
-                case 'DES':
+                case 'critico':
                     color = 'Red'
                     break;
 
                 default:
                     color = 'Black'
-                    break;
             }
 
-            label = '#' + this._issues[i].attributes.identifier + ' - ' + value
+            label = '#' + this._issues[i].attributes.identifier + ' - ' + causa_raiz
             this._icons.push({dbId: 5827, label: label, css: "warning", location: this._issues[i].attributes.pushpin_attributes.location, id: id, color: color, content:this._issues[i].id})
             id += 1
         }

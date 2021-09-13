@@ -242,3 +242,36 @@ function loadingOverlay (options = {}) {
         resolve({ status: 'completed' })
     })
 }
+
+/**
+ * Remove os acentos do texto.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function str_normalize (text) {
+    return text.replace(/[\xE0-\xFC]/g, (c) => {
+        switch (c) {
+            case '\u00e1':
+            case '\u00e2':
+            case '\u00e3':
+                return 'a'
+            case '\u00e9':
+            case '\u00ea':
+                return 'e'
+            case '\u00ed':
+            case '\u00ee':
+                return 'i'
+            case '\u00f3':
+            case '\u00f4':
+                return 'o'
+            case '\u00fa':
+            case '\u00fb':
+                return 'u'
+            case '\u00e7':
+                return 'c'
+            default:
+                throw new TypeError(`Unexpected special character: ${c}`)
+        }
+    })
+}
