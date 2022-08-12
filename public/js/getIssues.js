@@ -1,6 +1,6 @@
 /**
- * 
- * @param {filtros, validacao, nivelAlerta, face, localizacao} parameters 
+ *
+ * @param {filtros, validacao, nivelAlerta, face, localizacao} parameters
  */
 async function getAllIssues(){
   let issues = []
@@ -17,7 +17,7 @@ async function getAllIssues(){
   var localizacao = localStorage.getItem('localizacao')
   var face = localStorage.getItem('face')
   let filtros = '';
-  
+
   if (nivelAlerta === '') nivelAlerta = false
   if (face === '') face = false
   if (localizacao === 'undefined') localizacao = false
@@ -51,17 +51,18 @@ async function getAllIssues(){
   if(!nivelAlerta && !localizacao && face){
     validacao = 7
   }
-  
+
   if(causaRaiz){
     filtros += '&filter[root_cause_id]='+causaRaiz
   }
-  
+
   if(issueId){
     filtros += '&filter[id]='+issueId
   }
 
   await $.ajax({
-    url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros || ''}`,
+    // url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros || ''}`,
+    url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
     headers: {"Authorization": `Bearer ${token}`},
@@ -152,7 +153,7 @@ async function getAllIssues(){
       }
     }
   });
-  
+
   return issues
 }
 
