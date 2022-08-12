@@ -62,7 +62,7 @@ async function getAllIssues(){
 
   await $.ajax({
     // url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros || ''}`,
-    url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}&page[limit]=200&page[offset]=0`,
+    url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}&page[limit]=50&page[offset]=0`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
     headers: {"Authorization": `Bearer ${token}`},
