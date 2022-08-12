@@ -61,8 +61,8 @@ async function getAllIssues(){
   }
 
   await $.ajax({
-    // url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}${filtros || ''}`,
-    url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
+    url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
+    // url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
     headers: {"Authorization": `Bearer ${token}`},
