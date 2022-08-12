@@ -73,79 +73,79 @@ async function getAllIssues(){
       let all_issues = data.data
       if(validacao > 0){
         all_issues.forEach(function (issue, key, array) {
-          if(validacao == 1){
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+        //   if(validacao == 1){
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
                 issues.push(all_issues[key])
-              }
-            })
-          }
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 2){
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //   if(validacao == 2){
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 3){
-            let insert = [ nivel => false, loc => false ]
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
-                insert.nivel = true
-              }
+        //   if(validacao == 3){
+        //     let insert = [ nivel => false, loc => false ]
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
+        //         insert.nivel = true
+        //       }
 
-              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
-                insert.loc = true
-              }
+        //       if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
+        //         insert.loc = true
+        //       }
 
-              if(insert.loc && insert.nivel){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //       if(insert.loc && insert.nivel){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 4){
-            let insert = {nivel : false, loc : false}
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
-                insert.nivel = true
-              }
+        //   if(validacao == 4){
+        //     let insert = {nivel : false, loc : false}
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta && issue.attributes.location_description == localizacao){
+        //         insert.nivel = true
+        //       }
 
-              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
-                insert.loc = true
-              }
+        //       if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
+        //         insert.loc = true
+        //       }
 
-              if(insert.loc && insert.nivel){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //       if(insert.loc && insert.nivel){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 5){
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(issue.attributes.location_description == localizacao){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //   if(validacao == 5){
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(issue.attributes.location_description == localizacao){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 6){
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //   if(validacao == 6){
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face && issue.attributes.location_description == localizacao){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
-          if(validacao == 7){
-            issue.attributes.custom_attributes.forEach(attribute => {
-              if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
-                issues.push(all_issues[key])
-              }
-            })
-          }
+        //   if(validacao == 7){
+        //     issue.attributes.custom_attributes.forEach(attribute => {
+        //       if(attribute.type == 'list' && attribute.id == "3ca62377-1e77-40dc-87c8-192fc008e6c6" && attribute.value == face){
+        //         issues.push(all_issues[key])
+        //       }
+        //     })
+        //   }
 
         });
       }else{
