@@ -61,8 +61,8 @@ async function getAllIssues(){
   }
 
   await $.ajax({
-    url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
-    // url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
+    // url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
+    url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
     type: 'GET',
     // Fetch the stored token from localStorage and set in the header
     headers: {"Authorization": `Bearer ${token}`},
@@ -70,13 +70,14 @@ async function getAllIssues(){
       alert('Sem resultado de issue para essa consulta');
     },
     success: function(data){
-      let all_issues = data.data
-      if(validacao > 0){
-        all_issues.forEach(function (issue, key, array) {
+        issues = data.data.result
+    //   let all_issues = data.data
+    //   if(validacao > 0){
+    //     all_issues.forEach(function (issue, key, array) {
         //   if(validacao == 1){
         //     issue.attributes.custom_attributes.forEach(attribute => {
         //       if(attribute.type == 'list' && attribute.id == "7b5ba1f6-2fe0-427b-a2e1-ba0fc7819b35" && attribute.value == nivelAlerta){
-                issues.push(all_issues[key])
+                // issues.push(all_issues[key])
         //       }
         //     })
         //   }
@@ -147,10 +148,10 @@ async function getAllIssues(){
         //     })
         //   }
 
-        });
-      }else{
-        issues = all_issues
-      }
+        // });
+    //   }else{
+        // issues = all_issues
+    //   }
     }
   });
 
