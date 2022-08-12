@@ -62,10 +62,10 @@ async function getAllIssues(){
 
   let offset = 0
 
-  for(i=0; i<2; i++){
+  for(i=0; i<3; i++){
     offset = 200 * 1
     await $.ajax({
-      url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}&page[limit]=200&page[offset]=${offset}`,
+      url: `https://developer.api.autodesk.com/issues/v1/containers/${containerId}/quality-issues?filter[target_urn]=${selected.urn}`,
       // url: `https://developer.api.autodesk.com/issues/v2/containers/bb280c0e-687d-4e33-b662-ad12381208e8/issues?sortBy=-displayId&filter[linkedDocumentUrn]=urn:adsk.wipprod:dm.lineage:DRuqbKMqS1K-_bNoKbgjng@1&filter[status]=draft,open,answered,work_completed,ready_to_inspect,not_approved,in_dispute`,
       type: 'GET',
       // Fetch the stored token from localStorage and set in the header
@@ -75,9 +75,9 @@ async function getAllIssues(){
       },
       success: function(data){
         issues.push(...data.data)
-        // issues = data.data.result
-        // let all_issues = data.data
-        // if(validacao > 0){
+          // issues = data.data.result
+      //   let all_issues = data.data
+      //   if(validacao > 0){
       //     all_issues.forEach(function (issue, key, array) {
           //   if(validacao == 1){
           //     issue.attributes.custom_attributes.forEach(attribute => {
@@ -155,10 +155,9 @@ async function getAllIssues(){
 
           // });
       //   }else{
-          // issues.push(all_issues)
-        }
+          // issues = all_issues
+      //   }
       }
-    }
   });
 
   return issues
