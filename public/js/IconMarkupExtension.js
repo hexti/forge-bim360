@@ -261,6 +261,10 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
         const count = url.length - 1
         const containerId = url[count].substr(2)
 
+        const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list`, {
+            headers: {'Authorization': `Bearer ${this.token}`}
+        }).then(({ data }) => data)
+
         for(let i = 0; i < this._issues.length; i++){
             const { id: alerta_id, value: _alerta } = this._issues[i].attributes.custom_attributes.find(({ title }) =>
                 str_normalize(title).toLowerCase().substr(0, title.indexOf('(')).trim() === 'nivel de alerta') || {}
@@ -271,21 +275,32 @@ class IconMarkupExtension extends Autodesk.Viewing.Extension {
             let alerta
             let causa_raiz
 
-            if (alerta_id) {
-                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${alerta_id}`, {
-                    headers: {'Authorization': `Bearer ${this.token}`}
-                }).then(({ data }) => data)
+            // try {
+            //     if (alerta_id) {
+            //         const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${alerta_id}`, {
+            //             headers: {'Authorization': `Bearer ${this.token}`}
+            //         }).then(({ data }) => data)
 
-                alerta = str_normalize(results[0].metadata.list.options.find(el => el.id === _alerta).value).toLowerCase()
+            //         alerta = str_normalize(results[0].metadata.list.options.find(el => el.id === _alerta).value).toLowerCase()
+            //     }
+
+            //     if (causa_raiz_id) {
+            //         const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${causa_raiz_id}`, {
+            //             headers: {'Authorization': `Bearer ${this.token}`}
+            //         }).then(({ data }) => data)
+
+            //         causa_raiz = results[0].metadata.list.options.find(el => el.id === _causa_raiz).value
+            //     }
+            // } catch (error) {
+            //     console.log(error)
+            // }
+            console.log(_causa_raiz)
+            try {
+                causa_raiz = results[1].metadata.list.options.find(el => el.id === _causa_raiz).value
+            } catch (error) {
+                console.log(error, _causa_raiz)
             }
-
-            if (causa_raiz_id) {
-                const { results } = await axios.get(`https://developer.api.autodesk.com/issues/v2/containers/${containerId}/issue-attribute-definitions?filter[dataType]=list&filter[id]=${causa_raiz_id}`, {
-                    headers: {'Authorization': `Bearer ${this.token}`}
-                }).then(({ data }) => data)
-
-                causa_raiz = results[0].metadata.list.options.find(el => el.id === _causa_raiz).value
-            }
+            alerta = str_normalize(results[3].metadata.list.options.find(el => el?.id === _alerta).value).toLowerCase()
 
             switch (alerta) {
                 case 'toleravel':

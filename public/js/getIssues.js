@@ -1,4 +1,4 @@
-const { all } = require("express/lib/application");
+// const { all } = require("express/lib/application");
 
 /**
  *
@@ -76,9 +76,7 @@ async function getAllIssues(){
       },
       success: function(data){
         let all_issues = data.data
-        if(all_issues.length === 0){
-            break;
-        }
+        console.log(all_issues)
         if(validacao > 0){
           all_issues.forEach(function (issue, key, array) {
             if(validacao == 1){
@@ -161,7 +159,6 @@ async function getAllIssues(){
         }
       }
     });
-
   }
 
   return issues
